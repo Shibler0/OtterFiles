@@ -43,6 +43,8 @@ kotlin {
             implementation(libs.kotlin.test)
         }
         jvmMain.dependencies {
+            implementation(compose.runtime)
+            implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
         }

@@ -18,23 +18,27 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import java.io.File
 import kotlin.concurrent.thread
+import androidx.compose.runtime.collectAsState
 
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
         title = "TransferFiles",
     ) {
-        FileExplorerContent()
+        val vm = MainVM()
+        val client = AndroidClient("192.168.1.89")
+        FileExplorerContent(vm, client)
     }
 }
 
 @Composable
-fun FileExplorerContent() {
+fun FileExplorerContent(vm : MainVM, client : AndroidClient) {
     // ÉTAT : Navigation locale
     var currentDirectory: File? by remember { mutableStateOf(null) }
 
     // ÉTAT : Téléphone
-    var remoteFiles by remember { mutableStateOf<List<String>>(emptyList()) }
+    //var remoteFiles by remember { mutableStateOf<List<String>>(emptyList()) }
+    val remoteFiles by vm.remoteFiles.collectAsState()
     var isShowingPhone by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
 
@@ -50,8 +54,7 @@ fun FileExplorerContent() {
             onShowPhone = {
                 isLoading = true
                 thread {
-                    val client =  AndroidClient("192.168.1.89") // METS L'IP DE TON TEL ICI
-                    remoteFiles = client.getRemoteFiles()
+                    vm.getRemoteFiles(client.getRemoteFiles(0))
                     isShowingPhone = true
                     isLoading = false
                 }
@@ -69,7 +72,10 @@ fun FileExplorerContent() {
                 // LISTE TÉLÉPHONE
                 LazyColumn {
                     items(remoteFiles) { fileName ->
-                        FileItemRow(name = fileName, isDirectory = false, isPhone = true)
+                        FileItemRow(name = fileName, isDirectory = false, isPhone = true) {
+                            //vm.savePathFile(fileName)
+                            //AndroidClient(Command.INPUT).getRemoteFiles()
+                        }
                     }
                 }
             } else {

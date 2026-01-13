@@ -7,7 +7,7 @@ import java.io.DataOutputStream
 
 class AndroidClient(val ip: String, val port: Int = 9999) {
 
-    fun getRemoteFiles(): List<String> {
+    fun getRemoteFiles(command : Int): List<String> {
         println("--- DÉBUT TENTATIVE DE CONNEXION ---")
         println("Cible : $ip:$port")
 
@@ -19,20 +19,29 @@ class AndroidClient(val ip: String, val port: Int = 9999) {
 
             val output = DataOutputStream(socket.getOutputStream())
             val input = DataInputStream(socket.getInputStream())
+            val files = mutableListOf<String>()
 
             println("📤 Envoi de la commande 'GET_LIST'...")
-            output.writeUTF("GET_LIST")
-            output.flush()
 
-            println("📥 Attente de la reponse du telephone...")
-            val count = input.readInt()
-            println("✅ Reponse reçue ! Le telephone va envoyer $count fichiers.")
+            if(command == 0) {
+                output.writeUTF("GET_LIST")
+                output.flush()
 
-            val files = mutableListOf<String>()
-            for (i in 0 until count) {
-                val name = input.readUTF()
-                files.add(name)
+                println("📥 Attente de la reponse du telephone...")
+                val count = input.readInt()
+                println("✅ Reponse reçue ! Le telephone va envoyer $count fichiers.")
+
+                val files = mutableListOf<String>()
+                for (i in 0 until count) {
+                    val name = input.readUTF()
+                    files.add(name)
+                }
+            } else if (command == 1) {
+                output.writeUTF("GET_FILE")
+                output.flush()
             }
+
+
             println("✅ Reception terminee.")
 
             socket.close()
