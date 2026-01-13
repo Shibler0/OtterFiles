@@ -19,7 +19,6 @@ import androidx.compose.ui.window.application
 import java.io.File
 import kotlin.concurrent.thread
 
-
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,

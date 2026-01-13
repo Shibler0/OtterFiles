@@ -1,6 +1,5 @@
 package com.shibler.transferfiles
 
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -53,18 +52,25 @@ class MainActivity : ComponentActivity() {
 
         setContent {
 
-            Scaffold() { paddingValues ->
-
-                AndroidAppContent(LocalContext.current, paddingValues, vm)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (!Environment.isExternalStorageManager()) {
+                    val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+                        data = "package:${LocalContext.current.packageName}".toUri()
+                    }
+                    LocalContext.current.startActivity(intent)
+                }
             }
 
+            Scaffold { paddingValues ->
+                AndroidAppContent(paddingValues, vm)
+            }
 
         }
     }
 }
 
 @Composable
-fun AndroidAppContent(context: Context, paddingValues: PaddingValues, vm : ViewModel) {
+fun AndroidAppContent(paddingValues: PaddingValues, vm : ViewModel) {
 
     val fileList = vm.fileList.collectAsState().value
     val serverIP = vm.serverIP.collectAsState().value
@@ -100,19 +106,7 @@ fun AndroidAppContent(context: Context, paddingValues: PaddingValues, vm : ViewM
 
         ScanBtn(
             onClick = {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    if (Environment.isExternalStorageManager()) {
-                        vm.refreshFileList()
-                    } else {
-                        val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
-                            data = "package:${context.packageName}".toUri()
-                        }
-                        context.startActivity(intent)
-                    }
-                } else {
-                    // Pour les vieux Android (10 et moins), on utilise la méthode classique
-                    // (Ici tu peux garder ton permissionLauncher si besoin)
-                }
+                vm.refreshFileList()
             }
         ) {
             if(fileList.isEmpty()) {
