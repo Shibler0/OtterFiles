@@ -33,7 +33,6 @@ class ViewModel(): ViewModel()  {
     fun refreshFileList() {
         Thread {
             val results = Model().getAllFiles()
-            // On met à jour l'interface sur le Thread Principal
             Handler(Looper.getMainLooper()).post {
                 _fileList.value = results
                 println("Scan terminé : ${results.size} fichiers trouvés")

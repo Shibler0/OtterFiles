@@ -47,11 +47,6 @@ import transferfiles.composeapp.generated.resources.unbounded
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
-        /*installSplashScreen().apply {
-            setKeepOnScreenCondition {
-                false
-            }
-        }*/
         super.onCreate(savedInstanceState)
 
         val vm = ViewModel()
@@ -71,9 +66,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AndroidAppContent(context: Context, paddingValues: PaddingValues, vm : ViewModel) {
 
-    //var fileList by remember { mutableStateOf(emptyList<String>()) }
     val fileList = vm.fileList.collectAsState().value
-    //val server = remember { AndroidFileServer(context) }
     val serverIP = vm.serverIP.collectAsState().value
     val unbounded = FontFamily(Font(Res.font.unbounded))
     val serverStatus by vm.serverStatus.collectAsStateWithLifecycle()
