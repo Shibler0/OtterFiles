@@ -33,11 +33,8 @@ fun main() = application {
 
 @Composable
 fun FileExplorerContent(vm : MainVM, client : AndroidClient) {
-    // ÉTAT : Navigation locale
     var currentDirectory: File? by remember { mutableStateOf(null) }
 
-    // ÉTAT : Téléphone
-    //var remoteFiles by remember { mutableStateOf<List<String>>(emptyList()) }
     val remoteFiles by vm.remoteFiles.collectAsState()
     var isShowingPhone by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
@@ -54,7 +51,7 @@ fun FileExplorerContent(vm : MainVM, client : AndroidClient) {
             onShowPhone = {
                 isLoading = true
                 thread {
-                    vm.getRemoteFiles(client.getRemoteFiles(0))
+                    vm.getRemoteFiles(client.getRemoteFiles())
                     isShowingPhone = true
                     isLoading = false
                 }
@@ -73,8 +70,6 @@ fun FileExplorerContent(vm : MainVM, client : AndroidClient) {
                 LazyColumn {
                     items(remoteFiles) { fileName ->
                         FileItemRow(name = fileName, isDirectory = false, isPhone = true) {
-                            //vm.savePathFile(fileName)
-                            //AndroidClient(Command.INPUT).getRemoteFiles()
                         }
                     }
                 }
