@@ -47,18 +47,20 @@ class DesktopClient(val ip: String, val port: Int = 9999) {
         return result.getOrDefault(listOf("ERREUR DE CONNEXION"))
     }
 
-    fun downloadFile(fileDirectory: String = "/storage/emulated/0/Download/support1.pdf"): File? {
+    fun downloadFile(fileDirectory: String) {
+
+        val fileName = fileDirectory.substringAfterLast("/")
 
         val userHome = System.getProperty("user.home")
         val saveDirectory = File(userHome, "Downloads")
 
-        val result = sendSocketCommand("GET_FILE;$fileDirectory") { input ->
+        sendSocketCommand("GET_FILE;$fileDirectory") { input ->
 
             val fileSize = input.readLong()
 
             println("Taille du fichier à recevoir : $fileSize octets")
 
-            val destinationFile = File(saveDirectory, "test")
+            val destinationFile = File(saveDirectory, fileName)
 
             FileOutputStream(destinationFile).use { fileOutput ->
 
@@ -77,10 +79,7 @@ class DesktopClient(val ip: String, val port: Int = 9999) {
                     totalBytesRead += bytesRead
                 }
             }
-
-            destinationFile
         }
 
-        return result.getOrNull()
     }
 }

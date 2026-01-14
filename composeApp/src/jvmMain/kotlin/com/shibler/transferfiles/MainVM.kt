@@ -8,23 +8,25 @@ import kotlinx.coroutines.launch
 
 class MainVM : ViewModel() {
 
-    private val _pathFile = MutableStateFlow<String>("")
-    val pathFile = _pathFile.asStateFlow()
-
     private val _remoteFiles = MutableStateFlow<List<String>>(emptyList())
     val remoteFiles = _remoteFiles.asStateFlow()
 
-    init {
-        viewModelScope.launch {
+    private val _selectedFiles = MutableStateFlow<List<String>>(emptyList())
+    val selectedFiles = _selectedFiles.asStateFlow()
 
-        }
-    }
 
-    fun savePathFile(newPath : String) {
-        _pathFile.value = newPath
-    }
 
     fun getRemoteFiles(newFiles : List<String>) {
         _remoteFiles.value = newFiles
     }
+
+    fun addSelectedFile(index : String) {
+        _selectedFiles.value += index
+    }
+
+    fun removeSelectedFile(index : String) {
+        _selectedFiles.value -= index
+    }
+
+
 }
