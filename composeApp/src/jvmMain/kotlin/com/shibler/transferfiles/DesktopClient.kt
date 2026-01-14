@@ -9,6 +9,8 @@ import java.io.FileOutputStream
 
 class DesktopClient(val ip: String, val port: Int = 9999) {
 
+    private val BUFFER_SIZE = 64 * 1024
+
     fun <T> sendSocketCommand(command: String, parser: (DataInputStream) -> T): Result<T> {
         println("--- CONNEXION : $ip:$port ($command) ---")
 
@@ -52,7 +54,7 @@ class DesktopClient(val ip: String, val port: Int = 9999) {
         val fileName = fileDirectory.substringAfterLast("/")
 
         val userHome = System.getProperty("user.home")
-        val saveDirectory = File(userHome, "Downloads")
+        val saveDirectory = File(userHome, "Downloads/")
 
         sendSocketCommand("GET_FILE;$fileDirectory") { input ->
 
@@ -62,12 +64,13 @@ class DesktopClient(val ip: String, val port: Int = 9999) {
 
             val destinationFile = File(saveDirectory, fileName)
 
-            FileOutputStream(destinationFile).use { fileOutput ->
+            FileOutputStream(destinationFile).buffered(BUFFER_SIZE).use { fileOutput ->
 
-                val buffer = ByteArray(4096)
+                val buffer = ByteArray(BUFFER_SIZE)
                 var totalBytesRead: Long = 0
 
                 while (totalBytesRead < fileSize) {
+
                     val bytesToRead = minOf(buffer.size.toLong(), fileSize - totalBytesRead).toInt()
 
                     val bytesRead = input.read(buffer, 0, bytesToRead)
@@ -75,7 +78,6 @@ class DesktopClient(val ip: String, val port: Int = 9999) {
                     if (bytesRead == -1) break
 
                     fileOutput.write(buffer, 0, bytesRead)
-
                     totalBytesRead += bytesRead
                 }
             }

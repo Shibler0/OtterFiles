@@ -10,6 +10,7 @@ import java.net.ServerSocket
 class AndroidFileServer(private val vm: ViewModel) {
 
     private var isRunning = false
+    private val BUFFER_SIZE = 64 * 1024
 
     fun start(port: Int = 9999) {
         if (isRunning) return
@@ -46,7 +47,7 @@ class AndroidFileServer(private val vm: ViewModel) {
                         if (fileObj.exists() && fileObj.isFile) {
                             output.writeLong(fileObj.length())
 
-                            FileInputStream(fileObj).use { fileInput ->
+                            FileInputStream(fileObj).buffered(BUFFER_SIZE).use { fileInput ->
                                 val buffer = ByteArray(4096)
                                 var bytesRead: Int
                                 while (fileInput.read(buffer).also { bytesRead = it } != -1) {
