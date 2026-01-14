@@ -39,33 +39,23 @@ class AndroidFileServer(private val vm: ViewModel) {
                         files.forEach { output.writeUTF(it) }
                     }
 
-                    if(command == "GET_FILE") {
-
-                        val path = input.readUTF()
+                    if (command.startsWith("GET_FILE")) {
+                        val path = command.substringAfter(";", "")
                         val fileObj = File(path)
 
-                        if (fileObj.exists()) {
+                        if (fileObj.exists() && fileObj.isFile) {
                             output.writeLong(fileObj.length())
 
-                            // 3. Ouvrir le flux sur le DISQUE (pas en RAM)
-                            val fileInput = FileInputStream(fileObj)
-                            val buffer = ByteArray(4096) // Le seau de 4 Ko
-
-                            var bytesRead: Int
-
-                            // 4. La boucle magique
-                            // On remplit le buffer. 'bytesRead' contient le nombre d'octets réellement lus (ex: 4096, ou 200 à la fin)
-                            while (fileInput.read(buffer).also { bytesRead = it } != -1) {
-                                // On écrit dans le tuyau vers le Client
-                                output.write(buffer, 0, bytesRead)
+                            FileInputStream(fileObj).use { fileInput ->
+                                val buffer = ByteArray(4096)
+                                var bytesRead: Int
+                                while (fileInput.read(buffer).also { bytesRead = it } != -1) {
+                                    output.write(buffer, 0, bytesRead)
+                                }
                             }
-
-                            // 5. Ménage
-                            output.flush() // On s'assure que tout est parti
-                            fileInput.close()
+                            output.flush()
                         } else {
-                            // Gérer le cas où le fichier n'existe pas (envoyer une taille de 0 ou -1 par exemple)
-                            output.writeLong(0)
+                            output.writeLong(0L) // On prévient le client que le fichier est vide/inexistant
                         }
                     }
 

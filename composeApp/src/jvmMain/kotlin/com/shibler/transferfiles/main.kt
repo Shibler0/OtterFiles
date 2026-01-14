@@ -26,13 +26,13 @@ fun main() = application {
         title = "TransferFiles",
     ) {
         val vm = MainVM()
-        val client = AndroidClient("192.168.1.89")
+        val client = DesktopClient("192.168.1.89")
         FileExplorerContent(vm, client)
     }
 }
 
 @Composable
-fun FileExplorerContent(vm : MainVM, client : AndroidClient) {
+fun FileExplorerContent(vm : MainVM, client : DesktopClient) {
     var currentDirectory: File? by remember { mutableStateOf(null) }
 
     val remoteFiles by vm.remoteFiles.collectAsState()
@@ -70,6 +70,11 @@ fun FileExplorerContent(vm : MainVM, client : AndroidClient) {
                 LazyColumn {
                     items(remoteFiles) { fileName ->
                         FileItemRow(name = fileName, isDirectory = false, isPhone = true) {
+                        }
+                    }
+                    item {
+                        Row(Modifier.fillMaxWidth().clickable{ client.downloadFile("test") }.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text("Save")
                         }
                     }
                 }
