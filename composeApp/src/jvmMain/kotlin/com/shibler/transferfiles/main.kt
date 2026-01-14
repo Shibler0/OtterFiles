@@ -1,9 +1,12 @@
 package com.shibler.transferfiles
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -19,20 +22,28 @@ import androidx.compose.ui.window.application
 import java.io.File
 import kotlin.concurrent.thread
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.sp
+import org.jetbrains.compose.resources.Font
+import transferfiles.composeapp.generated.resources.Res
+import transferfiles.composeapp.generated.resources.unbounded
 
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
         title = "TransferFiles",
     ) {
+        val phoneIP = "192.168.1.89"
         val vm = MainVM()
-        val client = DesktopClient("192.168.1.89")
-        FileExplorerContent(vm, client)
+        val client = DesktopClient(phoneIP)
+        FileExplorerContent(vm, client, phoneIP)
     }
 }
 
 @Composable
-fun FileExplorerContent(vm : MainVM, client : DesktopClient) {
+fun FileExplorerContent(vm : MainVM, client : DesktopClient, phoneIP: String) {
     var currentDirectory: File? by remember { mutableStateOf(null) }
 
     val remoteFiles by vm.remoteFiles.collectAsState()
@@ -56,7 +67,8 @@ fun FileExplorerContent(vm : MainVM, client : DesktopClient) {
                     isLoading = false
                 }
             },
-            isPhoneActive = isShowingPhone
+            isPhoneActive = isShowingPhone,
+            phoneIP = phoneIP
         )
 
         Divider()
@@ -73,11 +85,13 @@ fun FileExplorerContent(vm : MainVM, client : DesktopClient) {
                         }
                     }
                     item {
-                        Row(Modifier.fillMaxWidth().clickable{ client.downloadFile("test") }.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        /*Row(Modifier.fillMaxWidth().clickable{ client.downloadFile("test") }.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text("Save")
-                        }
+                        }*/
                     }
                 }
+
+                DownloadBtn(modifier = Modifier.align(Alignment.BottomCenter)){ client.downloadFile() }
             } else {
                 // LISTE PC (LOCALE)
                 Column {
@@ -103,13 +117,15 @@ fun FileExplorerContent(vm : MainVM, client : DesktopClient) {
                         }
                     }
                 }
+
+                DownloadBtn(modifier = Modifier.align(Alignment.BottomCenter)){}
             }
         }
     }
 }
 
 @Composable
-fun TopNavigationRow(onShowPC: () -> Unit, onShowPhone: () -> Unit, isPhoneActive: Boolean) {
+fun TopNavigationRow(onShowPC: () -> Unit, onShowPhone: () -> Unit, isPhoneActive: Boolean, phoneIP : String) {
     Row(Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Button(
             onClick = onShowPC,
@@ -125,7 +141,7 @@ fun TopNavigationRow(onShowPC: () -> Unit, onShowPhone: () -> Unit, isPhoneActiv
         ) {
             Icon(Icons.Default.PhoneAndroid, null)
             Spacer(Modifier.width(4.dp))
-            Text("Mon Téléphone")
+            Text("Mon Téléphone ($phoneIP)")
         }
     }
 }
@@ -138,5 +154,29 @@ fun FileItemRow(name: String, isDirectory: Boolean, isPhone: Boolean, onClick: (
     ) {
         val icon = if (isPhone) Icons.Default.PhoneAndroid else if (isDirectory) Icons.Default.Computer else Icons.Default.Computer
         Text(name)
+    }
+}
+
+
+@Composable
+fun DownloadBtn(modifier: Modifier, onClick: () -> Unit) {
+
+    val unbounded = FontFamily(Font(Res.font.unbounded))
+
+    Row(
+        modifier = Modifier
+            .padding(bottom = 16.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .fillMaxWidth(0.9f)
+            .clickable{onClick()}
+            .border(2.dp, brush = Brush.linearGradient(listOf(Color(153, 51, 255, 255), Color(217, 51, 255, 255)
+            )), RoundedCornerShape(20.dp))
+            .background(Color.White, RoundedCornerShape(20.dp))
+            .padding(top = 12.dp, bottom = 12.dp)
+            .then(modifier),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text("Telecharger", fontSize = 16.sp, fontFamily = unbounded)
     }
 }

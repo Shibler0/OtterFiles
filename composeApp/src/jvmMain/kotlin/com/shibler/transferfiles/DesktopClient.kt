@@ -58,7 +58,7 @@ class DesktopClient(val ip: String, val port: Int = 9999) {
 
             println("Taille du fichier à recevoir : $fileSize octets")
 
-            val destinationFile = File(saveDirectory, fileDirectory)
+            val destinationFile = File(saveDirectory, "test")
 
             FileOutputStream(destinationFile).use { fileOutput ->
 
