@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        val vm = ViewModel()
+        val vm = ViewModel(applicationContext)
 
         setContent {
 

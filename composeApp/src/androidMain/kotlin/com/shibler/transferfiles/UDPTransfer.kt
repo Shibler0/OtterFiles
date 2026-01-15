@@ -6,7 +6,7 @@ import android.net.nsd.NsdServiceInfo
 import android.util.Log
 
 
-class UDPTransfer(private val context: Context) {
+class UDPTransfer(context: Context) {
 
     val nsdManager: NsdManager? = context.getSystemService(NsdManager::class.java)
     private var registrationListener: NsdManager.RegistrationListener? = null

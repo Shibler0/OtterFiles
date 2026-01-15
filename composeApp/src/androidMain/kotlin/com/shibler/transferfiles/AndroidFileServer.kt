@@ -1,5 +1,6 @@
 package com.shibler.transferfiles
 
+import android.content.Context
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.File
@@ -7,16 +8,19 @@ import java.io.FileInputStream
 import java.net.ServerSocket
 
 
-class AndroidFileServer(private val vm: ViewModel) {
+class AndroidFileServer(private val vm: ViewModel, context: Context) {
 
     private var isRunning = false
     private val BUFFER_SIZE = 64 * 1024
+    private val mdns = UDPTransfer(context)
 
     fun start(port: Int = 9999) {
         if (isRunning) return
         isRunning = true
 
-            val serverSocket = ServerSocket(port)
+        val serverSocket = ServerSocket(port)
+        mdns.register()
+
             while (isRunning) {
                 try {
                     vm.updateStatus("En attente de connexion...")

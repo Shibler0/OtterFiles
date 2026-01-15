@@ -1,5 +1,6 @@
 package com.shibler.transferfiles
 
+import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.ViewModel
@@ -9,10 +10,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class ViewModel(): ViewModel()  {
+class ViewModel(context: Context): ViewModel()  {
 
     val model = Model()
-    val server = AndroidFileServer(this)
+    val server = AndroidFileServer(this, context)
 
     private val _serverIP = MutableStateFlow("Ip du serveur...")
     val serverIP = _serverIP.asStateFlow()

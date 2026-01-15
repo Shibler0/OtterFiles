@@ -42,19 +42,21 @@ class DesktopClient(val ip: String, val port: Int = 9999) {
             for (i in 0 until count) {
                 list.add(input.readUTF())
             }
-            list // Ce que retourne le bloc est le résultat
+            list
         }
 
-        // Gestion du résultat (Succès ou Erreur)
         return result.getOrDefault(listOf("ERREUR DE CONNEXION"))
     }
 
     fun downloadFile(fileDirectory: String) {
 
         val fileName = fileDirectory.substringAfterLast("/")
-
         val userHome = System.getProperty("user.home")
-        val saveDirectory = File(userHome, "Downloads/")
+        val dir = "mesfichiers"
+        val saveDirectory = File(userHome, "Downloads/$dir")
+        if(!saveDirectory.exists()) {
+            saveDirectory.mkdir()
+        }
 
         sendSocketCommand("GET_FILE;$fileDirectory") { input ->
 
