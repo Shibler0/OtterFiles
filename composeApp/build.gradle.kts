@@ -47,6 +47,7 @@ kotlin {
             implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+            implementation("org.jmdns:jmdns:3.6.3")
         }
     }
 }

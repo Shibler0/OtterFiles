@@ -1,10 +1,8 @@
 package com.shibler.transferfiles
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 
 class MainVM : ViewModel() {
 
@@ -14,9 +12,10 @@ class MainVM : ViewModel() {
     private val _selectedFiles = MutableStateFlow<List<String>>(emptyList())
     val selectedFiles = _selectedFiles.asStateFlow()
 
+    private val _serverSocketAddress = MutableStateFlow<String>("")
+    val serverSocketAddress = _serverSocketAddress.asStateFlow()
 
-
-    fun getRemoteFiles(newFiles : List<String>) {
+    fun setRemoteFiles(newFiles : List<String>) {
         _remoteFiles.value = newFiles
     }
 
@@ -28,5 +27,8 @@ class MainVM : ViewModel() {
         _selectedFiles.value -= index
     }
 
+    fun setServerSocket(newAddress : String) {
+        _serverSocketAddress.value = newAddress
+    }
 
 }
