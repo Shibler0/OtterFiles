@@ -6,30 +6,42 @@ import java.net.DatagramSocket
 
 class UDPDiscovery() {
 
-    fun listenForPhone(vm : MainVM) {
+    fun listenForPhone(onConnectionReceived : (String) -> Unit = {}) {
         val port = 8888
         val buffer = ByteArray(1024)
 
         println("En attente du telephone sur le port $port...")
 
         try {
-            // On écoute sur le port 8888
             val socket = DatagramSocket(port)
             val packet = DatagramPacket(buffer, buffer.size)
 
-            // Cette ligne bloque le programme jusqu'à ce qu'un message arrive
             socket.receive(packet)
 
-            // Le message est arrivé !
+
             val phoneIp = packet.address.hostAddress
             val message = String(packet.data, 0, packet.length)
 
-            println("Téléphone trouvé !")
-            println("Message reçu : $message")
-            println("IP du téléphone : $phoneIp")
+            if(message != "HELLO_PC") {
+                socket.close()
+                return
+            }
 
-            vm.setServerSocket(phoneIp)
-            println(vm.serverSocketAddress.value)
+            onConnectionReceived(phoneIp)
+            println("Message recu : $message")
+            println("IP du telephone : $phoneIp")
+
+            /*val response = "HELLO_PHONE".toByteArray()
+
+            val replyPacket = DatagramPacket(
+                response,
+                response.size,
+                InetAddress.getByName("255.255.255.255"),
+                8888
+            )
+
+            socket.send(replyPacket)*/
+
 
             socket.close()
 

@@ -18,7 +18,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -35,7 +34,6 @@ import androidx.compose.material.icons.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.PlayCircle
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -82,7 +80,8 @@ fun FileExplorerContent(vm : MainVM) {
     val selectedFiles by vm.selectedFiles.collectAsState()
 
     var isShowingPhone by remember { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(false) }
+    var isLoading = vm.isLoading.collectAsState().value
+
 
     val scope = rememberCoroutineScope()
 
@@ -95,12 +94,6 @@ fun FileExplorerContent(vm : MainVM) {
                 thread {
                     vm.setRemoteFiles(client.getRemoteFiles())
                     isShowingPhone = true
-                    isLoading = false
-                }
-            },
-            refresh = {
-                thread {
-                    vm.setRemoteFiles(client.getRemoteFiles())
                 }
             },
             isPhoneActive = isShowingPhone,
@@ -116,7 +109,7 @@ fun FileExplorerContent(vm : MainVM) {
                 LazyColumn(
                     state = listState
                 ) {
-                    items(remoteFiles) { it ->
+                    items(remoteFiles) {
 
                         val fileName = it.files
 
@@ -143,6 +136,12 @@ fun FileExplorerContent(vm : MainVM) {
                                 scope.launch(Dispatchers.IO) {
                                     try {
                                         client.downloadFile(it)
+                                        vm.removeSelectedFile(it)
+                                        remoteFiles.map { file ->
+                                            if(file.files == it) {
+                                                file.selectedFiles.value = false
+                                            }
+                                        }
                                     } catch(e: Exception) {
                                         println("Erreur : ${e.message}")
                                     }
@@ -150,7 +149,6 @@ fun FileExplorerContent(vm : MainVM) {
                                 }
                             }
                         }
-
                 }
 
             }
@@ -167,7 +165,7 @@ fun FileExplorerContent(vm : MainVM) {
 }
 
 @Composable
-fun TopNavigationRow(onShowPhone: () -> Unit, refresh : () -> Unit = {}, isPhoneActive: Boolean, phoneIP : String) {
+fun TopNavigationRow(onShowPhone: () -> Unit, isPhoneActive: Boolean, phoneIP : String) {
     Row(Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
         Button(
             onClick = onShowPhone,
@@ -178,7 +176,6 @@ fun TopNavigationRow(onShowPhone: () -> Unit, refresh : () -> Unit = {}, isPhone
             Text("Mon Téléphone ($phoneIP)")
         }
 
-        Icon(Icons.Default.Refresh, null, modifier = Modifier.clickable { refresh() }.clip(CircleShape))
     }
 }
 

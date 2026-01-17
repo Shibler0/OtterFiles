@@ -9,31 +9,38 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-data class fileList(val files : String, var selectedFiles : MutableState<Boolean> = mutableStateOf(false))
+data class FileList(val files : String, var selectedFiles : MutableState<Boolean> = mutableStateOf(false))
+
 
 class MainVM : ViewModel() {
 
-    private val _remoteFiles = MutableStateFlow<List<fileList>>(emptyList())
+    private val _remoteFiles = MutableStateFlow<List<FileList>>(emptyList())
     val remoteFiles = _remoteFiles.asStateFlow()
 
     private val _selectedFiles = MutableStateFlow<List<String>>(emptyList())
     val selectedFiles = _selectedFiles.asStateFlow()
 
-    private val _serverSocketAddress = MutableStateFlow("?.?.?.?")
+    private val _serverSocketAddress = MutableStateFlow("?")
     val serverSocketAddress = _serverSocketAddress.asStateFlow()
-
 
     val desktopClient = DesktopClient(serverSocketAddress.value)
 
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading = _isLoading.asStateFlow()
+
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            UDPDiscovery().listenForPhone(this@MainVM)
+            UDPDiscovery().listenForPhone { phoneIp ->
+                setServerSocket(phoneIp)
+                _isLoading.value = false
+            }
             desktopClient
         }
     }
 
     fun setRemoteFiles(newFiles : List<String>) {
-        _remoteFiles.value = newFiles.map { fileList(it) }
+        _remoteFiles.value = newFiles.map { FileList(it) }
     }
 
     fun addSelectedFile(index : String) {
@@ -46,6 +53,10 @@ class MainVM : ViewModel() {
 
     fun setServerSocket(newAddress : String) {
         _serverSocketAddress.value = newAddress
+    }
+
+    fun setIsLoading() {
+        _isLoading.value = !isLoading.value
     }
 
 }
