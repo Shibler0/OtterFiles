@@ -1,23 +1,19 @@
 package com.shibler.transferfiles
 
-import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.net.DatagramPacket
-import java.net.DatagramSocket
-import java.net.InetAddress
 
-class ViewModel(context: Context): ViewModel()  {
+class AndroidVM(): ViewModel()  {
 
     val model = Model()
-    val server = AndroidFileServer(this, context)
+    val server = AndroidFileServer(this)
 
     private val _serverIP = MutableStateFlow("Ip du serveur...")
     val serverIP = _serverIP.asStateFlow()
@@ -25,14 +21,19 @@ class ViewModel(context: Context): ViewModel()  {
     private val _fileList = MutableStateFlow<List<String>>(emptyList())
     val fileList = _fileList.asStateFlow()
 
-    private val _serverStatus = MutableStateFlow("Arret")
+    private val _serverStatus = MutableStateFlow("En attente de connexion...")
     val serverStatus = _serverStatus.asStateFlow()
 
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
+            launch {
+                server.start()
+            }
+
+            delay(500)
+
             UDPBroadcaster().sendBroadcastSignal()
-            server.start()
         }
 
         _serverIP.value = model.getLocalIpAddress()
@@ -51,7 +52,6 @@ class ViewModel(context: Context): ViewModel()  {
 
     fun updateStatus(newStatus: String) {
         _serverStatus.value = newStatus
-
     }
 
 }

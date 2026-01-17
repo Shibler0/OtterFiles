@@ -9,6 +9,8 @@ class UDPBroadcaster() {
 
     fun sendBroadcastSignal() {
             try {
+
+                println("preparation")
                 val socket = DatagramSocket()
                 socket.broadcast = true
 
@@ -24,7 +26,10 @@ class UDPBroadcaster() {
 
                     socket.send(packet)
 
+                    println("Message envoyé")
+
                     Thread.sleep(1000)
+
                 }
 
 

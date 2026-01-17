@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        val vm = ViewModel(applicationContext)
+        val vm = AndroidVM()
 
         setContent {
 
@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AndroidAppContent(paddingValues: PaddingValues, vm : ViewModel) {
+fun AndroidAppContent(paddingValues: PaddingValues, vm : AndroidVM) {
 
     val fileList = vm.fileList.collectAsState().value
     val serverIP = vm.serverIP.collectAsState().value

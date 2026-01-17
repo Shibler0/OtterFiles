@@ -27,9 +27,17 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Audiotrack
+import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.InsertDriveFile
+import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.PhoneAndroid
+import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,20 +66,19 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
         title = "TransferFiles",
     ) {
-        val phoneIP = "192.168.1.89"
         val vm = MainVM()
-        //val v = UDPDiscovery()
-        val client = DesktopClient(phoneIP)
-        FileExplorerContent(vm, client, phoneIP)
+        FileExplorerContent(vm)
     }
 }
 
 @Composable
-fun FileExplorerContent(vm : MainVM, client : DesktopClient, phoneIP: String) {
+fun FileExplorerContent(vm : MainVM) {
 
     val listState = rememberLazyListState()
+    val client = DesktopClient(vm.serverSocketAddress.value)
 
     val remoteFiles by vm.remoteFiles.collectAsState()
+    val phoneIP by vm.serverSocketAddress.collectAsState()
     val selectedFiles by vm.selectedFiles.collectAsState()
 
     var isShowingPhone by remember { mutableStateOf(false) }
@@ -82,7 +89,6 @@ fun FileExplorerContent(vm : MainVM, client : DesktopClient, phoneIP: String) {
 
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // --- Barre de sélection du mode ---
         TopNavigationRow(
             onShowPhone = {
                 isLoading = true
@@ -103,24 +109,30 @@ fun FileExplorerContent(vm : MainVM, client : DesktopClient, phoneIP: String) {
 
         Divider()
 
-        // --- Affichage du contenu ---
         Box(modifier = Modifier.fillMaxSize()) {
             if (isLoading) {
                 CircularProgressIndicator(Modifier.align(Alignment.Center))
             } else {
-                // LISTE TÉLÉPHONE
                 LazyColumn(
                     state = listState
                 ) {
-                    items(remoteFiles) { fileName ->
-                        FileItemRow(name = fileName) {
+                    items(remoteFiles) { it ->
+
+                        val fileName = it.files
+
+                        val newName = fileName.substringAfterLast("/")
+                        val extension = fileName.substringAfterLast(".").lowercase()
+
+
+                        FileItemRow(name = newName, extension = extension, isSelected = it.selectedFiles) {
                             if(selectedFiles.contains(fileName)) {
                                 vm.removeSelectedFile(fileName)
+                                it.selectedFiles.value = false
                             } else {
+                                it.selectedFiles.value = true
                                 vm.addSelectedFile(fileName)
                                 println(vm.selectedFiles.value)
                             }
-
                         }
                     }
                 }
@@ -171,20 +183,43 @@ fun TopNavigationRow(onShowPhone: () -> Unit, refresh : () -> Unit = {}, isPhone
 }
 
 @Composable
-fun FileItemRow(name: String, onClick: () -> Unit = {}) {
+fun FileItemRow(name: String, extension: String, isSelected : MutableState<Boolean>, onClick: () -> Unit = {}) {
 
-    var isSelected by remember { mutableStateOf(false) }
+    val backgroundColor = if (isSelected.value) Color.LightGray else Color.White
+
+
+    val iconTint = when (extension) {
+        in listOf("mp3", "wav", "flac", "ogg", "m4a", "aac") -> Color(0xFFE91E63)
+        in listOf("mp4", "avi", "mkv", "mov", "wmv", "webm") -> Color(0xFFF44336)
+        in listOf("jpg", "jpeg", "png", "gif", "bmp", "webp", "svg") -> Color(0xFF4CAF50)
+        in listOf("zip", "rar", "7z", "tar", "gz") -> Color(0xFFFFC107)
+        "pdf" -> Color(0xFFD32F2F)
+        in listOf("doc", "docx", "txt", "rtf", "odt") -> Color(0xFF2196F3)
+        in listOf("xls", "xlsx", "csv") -> Color(0xFF388E3C)
+        in listOf("xml", "json", "html", "css", "js", "kt", "java") -> Color(0xFF607D8B)
+        else -> Color(0xFF757575)
+    }
+
+    val icon = when (extension) {
+        in listOf("mp3", "wav", "flac", "ogg", "m4a", "aac") -> Icons.Default.Audiotrack
+        in listOf("mp4", "avi", "mkv", "mov", "wmv", "webm") -> Icons.Default.PlayCircle
+        in listOf("jpg", "jpeg", "png", "gif", "bmp", "webp", "svg") -> Icons.Default.Image
+        in listOf("zip", "rar", "7z", "tar", "gz") -> Icons.Default.Inventory
+        in listOf("pdf", "doc", "docx", "txt", "rtf", "xls", "xlsx") -> Icons.Default.Description
+        in listOf("xml", "json", "html", "css", "js", "kt") -> Icons.Default.Code
+        else -> Icons.Default.InsertDriveFile
+    }
 
     Row(
         Modifier.fillMaxWidth()
             .clickable{
-                isSelected = !isSelected
                 onClick()
             }
-            .background(if (isSelected) Color.LightGray else Color.White)
+            .background(backgroundColor)
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Icon(imageVector =  icon, tint = iconTint, contentDescription = null)
         Text(name)
     }
 }

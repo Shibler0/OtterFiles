@@ -7,7 +7,7 @@ import java.io.DataOutputStream
 import java.io.File
 import java.io.FileOutputStream
 
-class DesktopClient(val ip: String, val port: Int = 9999) {
+class DesktopClient(val ip : String , val port: Int = 9999) {
 
     private val BUFFER_SIZE = 64 * 1024
 
@@ -16,6 +16,7 @@ class DesktopClient(val ip: String, val port: Int = 9999) {
 
         return try {
             Socket().use { socket ->
+                println("ip : $ip")
                 socket.connect(InetSocketAddress(ip, port), 3000)
 
                 val output = DataOutputStream(socket.getOutputStream())

@@ -14,8 +14,6 @@ class Model() {
             for (intf in interfaces) {
                 val addrs = intf.inetAddresses
                 for (addr in addrs) {
-                    // On vérifie que ce n'est pas l'adresse de boucle locale (127.0.0.1)
-                    // et que c'est bien une adresse IPv4
                     if (!addr.isLoopbackAddress && addr is Inet4Address) {
                         return addr.hostAddress ?: "Inconnue"
                     }
@@ -30,10 +28,8 @@ class Model() {
     fun getAllFiles(): List<String> {
         val fileList = mutableListOf<String>()
 
-        // On récupère la racine du stockage interne (ex: /storage/emulated/0)
         val root = Environment.getExternalStorageDirectory()
 
-        // On lance un scan récursif
         scanDirectory(root, fileList)
 
         return fileList

@@ -1,6 +1,5 @@
 package com.shibler.transferfiles
 
-import android.content.Context
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.File
@@ -8,7 +7,7 @@ import java.io.FileInputStream
 import java.net.ServerSocket
 
 
-class AndroidFileServer(private val vm: ViewModel, context: Context) {
+class AndroidFileServer(private val vm: AndroidVM) {
 
     private var isRunning = false
     private val BUFFER_SIZE = 64 * 1024
@@ -23,7 +22,7 @@ class AndroidFileServer(private val vm: ViewModel, context: Context) {
                 try {
                     vm.updateStatus("En attente de connexion...")
 
-                    val socket = serverSocket.accept() // Attend le PC
+                    val socket = serverSocket.accept()
                     val input = DataInputStream(socket.getInputStream())
                     val output = DataOutputStream(socket.getOutputStream())
 
@@ -36,9 +35,7 @@ class AndroidFileServer(private val vm: ViewModel, context: Context) {
                     if (command == "GET_LIST") {
 
                         val files = Model().getAllFiles()
-                        // 1. Envoie le nombre de fichiers
                         output.writeInt(files.size)
-                        // 2. Envoie chaque nom
                         files.forEach { output.writeUTF(it) }
                     }
 
@@ -58,7 +55,7 @@ class AndroidFileServer(private val vm: ViewModel, context: Context) {
                             }
                             output.flush()
                         } else {
-                            output.writeLong(0L) // On prévient le client que le fichier est vide/inexistant
+                            output.writeLong(0L)
                         }
                     }
 
