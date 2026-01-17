@@ -60,14 +60,14 @@ fun main() = application {
     ) {
         val phoneIP = "192.168.1.89"
         val vm = MainVM()
-        val v = UDPDiscovery()
+        //val v = UDPDiscovery()
         val client = DesktopClient(phoneIP)
-        FileExplorerContent(vm, client, phoneIP, v)
+        FileExplorerContent(vm, client, phoneIP)
     }
 }
 
 @Composable
-fun FileExplorerContent(vm : MainVM, client : DesktopClient, phoneIP: String, v : UDPDiscovery) {
+fun FileExplorerContent(vm : MainVM, client : DesktopClient, phoneIP: String) {
 
     val listState = rememberLazyListState()
 
@@ -87,7 +87,6 @@ fun FileExplorerContent(vm : MainVM, client : DesktopClient, phoneIP: String, v 
             onShowPhone = {
                 isLoading = true
                 thread {
-                    UDPDiscovery().start(vm)
                     vm.setRemoteFiles(client.getRemoteFiles())
                     isShowingPhone = true
                     isLoading = false

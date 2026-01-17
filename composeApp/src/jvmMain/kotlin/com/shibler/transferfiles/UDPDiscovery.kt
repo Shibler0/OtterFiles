@@ -1,43 +1,37 @@
 package com.shibler.transferfiles
 
-import javax.jmdns.JmDNS
-import javax.jmdns.ServiceEvent
-import javax.jmdns.ServiceListener
+import java.net.DatagramPacket
+import java.net.DatagramSocket
+
 
 class UDPDiscovery {
 
-    private val jmdns = JmDNS.create()
-    private var connected = false
+    fun listenForPhone() {
+        val port = 8888
+        val buffer = ByteArray(1024)
 
-    fun start(vm : MainVM) {
-        jmdns.addServiceListener("_myapp._tcp.local.", object : ServiceListener {
+        println("En attente du téléphone sur le port $port...")
 
-            override fun serviceAdded(event: ServiceEvent) {
-                jmdns.requestServiceInfo(event.type, event.name)
-            }
+        try {
+            // On écoute sur le port 8889
+            val socket = DatagramSocket(port)
+            val packet = DatagramPacket(buffer, buffer.size)
 
-            override fun serviceResolved(event: ServiceEvent) {
+            // Cette ligne bloque le programme jusqu'à ce qu'un message arrive
+            socket.receive(packet)
 
-                if (connected) return
+            // Le message est arrivé !
+            val phoneIp = packet.address.hostAddress
+            val message = String(packet.data, 0, packet.length)
 
-                val info = event.info
-                val ip = info.inetAddresses.first().hostAddress
-                val port = info.port
+            println("Téléphone trouvé !")
+            println("Message reçu : $message")
+            println("IP du téléphone : $phoneIp")
 
-                connected = true
+            socket.close()
 
-                vm.setServerSocket("$ip:$port")
-                println("Serveur trouvé: $ip:$port")
-            }
-
-            override fun serviceRemoved(event: ServiceEvent) {
-                println("Serveur disparu: ${event.name}")
-                connected = false
-            }
-        })
-    }
-
-    fun stop() {
-        jmdns.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

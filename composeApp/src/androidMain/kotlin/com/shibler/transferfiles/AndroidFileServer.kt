@@ -12,14 +12,12 @@ class AndroidFileServer(private val vm: ViewModel, context: Context) {
 
     private var isRunning = false
     private val BUFFER_SIZE = 64 * 1024
-    private val mdns = UDPTransfer(context)
 
     fun start(port: Int = 9999) {
         if (isRunning) return
         isRunning = true
 
         val serverSocket = ServerSocket(port)
-        mdns.register()
 
             while (isRunning) {
                 try {

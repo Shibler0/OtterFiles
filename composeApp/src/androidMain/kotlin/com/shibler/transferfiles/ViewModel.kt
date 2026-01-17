@@ -3,12 +3,16 @@ package com.shibler.transferfiles
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.net.DatagramPacket
+import java.net.DatagramSocket
+import java.net.InetAddress
 
 class ViewModel(context: Context): ViewModel()  {
 
@@ -26,7 +30,11 @@ class ViewModel(context: Context): ViewModel()  {
 
 
     init {
-        startServer()
+        viewModelScope.launch(Dispatchers.IO) {
+            UDPBroadcaster().sendBroadcastSignal()
+            server.start()
+        }
+
         _serverIP.value = model.getLocalIpAddress()
         _fileList.value = model.getAllFiles()
     }
@@ -39,12 +47,6 @@ class ViewModel(context: Context): ViewModel()  {
                 println("Scan terminé : ${results.size} fichiers trouvés")
             }
         }.start()
-    }
-
-    fun startServer() {
-        viewModelScope.launch(Dispatchers.IO) {
-            server.start()
-        }
     }
 
     fun updateStatus(newStatus: String) {
