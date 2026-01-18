@@ -49,7 +49,7 @@ class DesktopClient(val ip : String , val port: Int = 9999) {
         return result.getOrDefault(listOf("ERREUR DE CONNEXION"))
     }
 
-    fun downloadFile(fileDirectory: String) {
+    fun downloadFile(fileDirectory: String, vm: MainVM) {
 
         val fileName = fileDirectory.substringAfterLast("/")
         val userHome = System.getProperty("user.home")
@@ -82,7 +82,10 @@ class DesktopClient(val ip : String , val port: Int = 9999) {
 
                     fileOutput.write(buffer, 0, bytesRead)
                     totalBytesRead += bytesRead
+                    //println("nombre de gigas recus : ${BytesToGigabytes(totalBytesRead)}")
+                    vm.setProgressionState(fileSize, totalBytesRead)
                 }
+                vm.resetProgressionState()
             }
         }
 

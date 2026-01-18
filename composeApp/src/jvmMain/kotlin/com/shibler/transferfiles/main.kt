@@ -46,6 +46,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
@@ -79,6 +82,8 @@ fun FileExplorerContent(vm : MainVM) {
     val remoteFiles by vm.remoteFiles.collectAsState()
     val phoneIP by vm.serverSocketAddress.collectAsState()
     val selectedFiles by vm.selectedFiles.collectAsState()
+    val progression by vm.progress.collectAsState()
+
 
     var isShowingPhone by remember { mutableStateOf(false) }
     var isLoading = vm.isLoading.collectAsState().value
@@ -133,11 +138,11 @@ fun FileExplorerContent(vm : MainVM) {
                 }
                 if(selectedFiles.isNotEmpty()) {
 
-                        DownloadBtn(modifier = Modifier.align(Alignment.BottomCenter)){
+                        DownloadBtn(modifier = Modifier.align(Alignment.BottomCenter), progression = progression){
                             selectedFiles.forEach {
                                 scope.launch(Dispatchers.IO) {
                                     try {
-                                        client.downloadFile(it)
+                                        client.downloadFile(it, vm)
                                         vm.removeSelectedFile(it)
                                         remoteFiles.map { file ->
                                             if(file.files == it) {
@@ -227,7 +232,7 @@ fun FileItemRow(name: String, extension: String, isSelected : MutableState<Boole
 
 
 @Composable
-fun DownloadBtn(modifier: Modifier, onClick: () -> Unit) {
+fun DownloadBtn(modifier: Modifier, progression : Float = 0f, onClick: () -> Unit) {
 
     val unbounded = FontFamily(Font(Res.font.unbounded))
 
@@ -240,6 +245,26 @@ fun DownloadBtn(modifier: Modifier, onClick: () -> Unit) {
             .border(2.dp, brush = Brush.linearGradient(listOf(Color(153, 51, 255, 255), Color(217, 51, 255, 255)
             )), RoundedCornerShape(20.dp))
             .background(Color.White, RoundedCornerShape(20.dp))
+            .drawWithCache {
+                val progress = progression
+                val progressWidth = size.width * progress
+
+                val gradientBrush = Brush.linearGradient(
+                    colors = listOf(
+                        Color(153, 51, 255, 255),
+                        Color(217, 51, 255, 255)
+                    ),
+                    start = Offset.Zero,
+                    end = Offset(progressWidth, 0f)
+                )
+
+                onDrawBehind {
+                    drawRect(
+                        brush = gradientBrush,
+                        size = Size(progressWidth, size.height)
+                    )
+                }
+            }
             .padding(top = 12.dp, bottom = 12.dp)
             .then(modifier),
         horizontalArrangement = Arrangement.Center,

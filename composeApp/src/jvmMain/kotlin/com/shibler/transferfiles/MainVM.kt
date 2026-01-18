@@ -28,6 +28,9 @@ class MainVM : ViewModel() {
     private val _isLoading = MutableStateFlow(true)
     val isLoading = _isLoading.asStateFlow()
 
+    private val _progress = MutableStateFlow<Float>(0f)
+    val progress = _progress.asStateFlow()
+
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -58,5 +61,16 @@ class MainVM : ViewModel() {
     fun setIsLoading() {
         _isLoading.value = !isLoading.value
     }
+
+
+    fun setProgressionState(fileSize: Long, byteDownloaded: Long) {
+        _progress.value = ((byteDownloaded.toFloat() * 100) / fileSize.toFloat())/100
+    }
+
+    fun resetProgressionState() {
+        _progress.value = 0f
+    }
+
+
 
 }
