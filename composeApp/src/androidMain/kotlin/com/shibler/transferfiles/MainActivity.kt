@@ -19,15 +19,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.Font
 import transferfiles.composeapp.generated.resources.Res
 import transferfiles.composeapp.generated.resources.unbounded
@@ -76,6 +81,8 @@ fun AndroidAppContent(paddingValues: PaddingValues, vm : AndroidVM) {
     val serverIP = vm.serverIP.collectAsState().value
     val unbounded = FontFamily(Font(Res.font.unbounded))
     val serverStatus by vm.serverStatus.collectAsStateWithLifecycle()
+    val isSearching by vm.isSearching.collectAsStateWithLifecycle()
+
 
 
     Column(
@@ -106,13 +113,14 @@ fun AndroidAppContent(paddingValues: PaddingValues, vm : AndroidVM) {
 
         SendBroadcastBtn(
             onClick = {
-                vm.refreshFileList()
+                vm.sendBroadcastHandshake()
             }
         ) {
-            if(fileList.isEmpty()) {
-                Text("Trouver des fichiers", color = Color.White, fontSize = 16.sp, fontFamily = unbounded)
-            } else {
-                Text("Actualiser", color = Color.White, fontSize = 16.sp, fontFamily = unbounded)
+            Spacer(modifier = Modifier.weight(1f))
+
+            Text("En attente d'une connexion", color = Color.White, fontSize = 16.sp, fontFamily = unbounded, modifier = Modifier.weight(2f).align(Alignment.CenterHorizontally))
+            if(isSearching) {
+                CircularProgressIndicator(modifier = Modifier.padding(end = 10.dp).size(30.dp), color = Color.White)
             }
 
         }
@@ -137,8 +145,8 @@ fun SendBroadcastBtn(onClick: () -> Unit = {} , composable : @Composable () -> U
             )
             .clickable{ onClick() }
             .padding(top = 8.dp, bottom = 8.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
     ) {
         composable()
     }

@@ -236,6 +236,8 @@ fun DownloadBtn(modifier: Modifier, progression : Float = 0f, onClick: () -> Uni
 
     val unbounded = FontFamily(Font(Res.font.unbounded))
 
+    val downloadtxt = if(progression == 0f) "Télécharger" else "${(progression * 100).toInt()}%"
+
     Row(
         modifier = Modifier
             .padding(bottom = 16.dp)
@@ -270,6 +272,6 @@ fun DownloadBtn(modifier: Modifier, progression : Float = 0f, onClick: () -> Uni
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("Telecharger", fontSize = 16.sp, fontFamily = unbounded)
+        Text(downloadtxt, fontSize = 16.sp, fontFamily = unbounded)
     }
 }

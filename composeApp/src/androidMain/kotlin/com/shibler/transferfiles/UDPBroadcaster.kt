@@ -54,7 +54,7 @@ class UDPBroadcaster {
                         if (responseMsg.trim() == "ACK") {
                             Log.d("UDP_HANDSHAKE", "✅ Le PC a répondu ! IP: $serverIp")
 
-                            onServerFound(serverIp)
+                            onServerFound(serverIp!!)
 
                             return@withContext
                         }

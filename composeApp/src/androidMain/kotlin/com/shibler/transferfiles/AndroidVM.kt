@@ -25,6 +25,8 @@ class AndroidVM(): ViewModel()  {
     private val _serverStatus = MutableStateFlow("En attente de connexion...")
     val serverStatus = _serverStatus.asStateFlow()
 
+    var isSearching = MutableStateFlow(false)
+        private set
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -34,10 +36,9 @@ class AndroidVM(): ViewModel()  {
 
             delay(500)
 
-            UDPBroadcaster().sendBroadcastAndListen { packet ->
-                println("packet recu: $packet")
-            }
         }
+
+        sendBroadcastHandshake()
 
         _serverIP.value = model.getLocalIpAddress()
         _fileList.value = model.getAllFiles()
@@ -55,6 +56,23 @@ class AndroidVM(): ViewModel()  {
 
     fun updateStatus(newStatus: String) {
         _serverStatus.value = newStatus
+    }
+
+    fun sendBroadcastHandshake() {
+
+        if(isSearching.value) return
+        isSearching.value = true
+
+        _serverStatus.value = "En attente de réponse..."
+
+        viewModelScope.launch(Dispatchers.IO) {
+            UDPBroadcaster().sendBroadcastAndListen { ip ->
+                _serverStatus.value = "Connecté !"
+                isSearching.value = false
+                println("packet recu: $ip")
+            }
+        }
+
     }
 
 }
