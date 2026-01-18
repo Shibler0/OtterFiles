@@ -104,7 +104,7 @@ fun AndroidAppContent(paddingValues: PaddingValues, vm : AndroidVM) {
             Text(serverStatus, color = Color.Black, fontSize = 14.sp)
         }
 
-        ScanBtn(
+        SendBroadcastBtn(
             onClick = {
                 vm.refreshFileList()
             }
@@ -126,7 +126,7 @@ fun AndroidAppContent(paddingValues: PaddingValues, vm : AndroidVM) {
 
 
 @Composable
-fun ScanBtn(onClick: () -> Unit = {} , composable : @Composable () -> Unit = {}) {
+fun SendBroadcastBtn(onClick: () -> Unit = {} , composable : @Composable () -> Unit = {}) {
 
     Row(
         modifier = Modifier

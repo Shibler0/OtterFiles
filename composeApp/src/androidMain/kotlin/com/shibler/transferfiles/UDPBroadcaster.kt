@@ -1,39 +1,74 @@
-package com.shibler.transferfiles
-
+import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.withContext
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
+import java.net.SocketTimeoutException
 
+class UDPBroadcaster {
 
-class UDPBroadcaster() {
+    suspend fun sendBroadcastAndListen(onServerFound: (String) -> Unit) {
+        withContext(Dispatchers.IO) {
 
-    fun sendBroadcastSignal() {
+            var socket: DatagramSocket? = null
+
             try {
-
-                val socket = DatagramSocket()
+                socket = DatagramSocket()
                 socket.broadcast = true
 
+                socket.soTimeout = 2000
+
                 val message = "HELLO_PC".toByteArray()
+                val buffer = ByteArray(1024)
 
-                repeat(5) {
-                    val packet = DatagramPacket(
-                        message,
-                        message.size,
-                        InetAddress.getByName("255.255.255.255"),
-                        8888
-                    )
+                // On boucle tant que la coroutine est active (et qu'on a pas return)
+                while (isActive) {
 
-                    socket.send(packet)
+                    try {
+                        val broadcastAddr = InetAddress.getByName("255.255.255.255")
 
-                    Thread.sleep(1000)
+                        val packet = DatagramPacket(
+                            message,
+                            message.size,
+                            broadcastAddr,
+                            8888
+                        )
 
+                        socket.send(packet)
+                        Log.d("UDP_HANDSHAKE", "Ping envoyé... J'écoute.")
+
+                    } catch (e: Exception) {
+                        Log.e("UDP_HANDSHAKE", "Erreur d'envoi: ${e.message}")
+                    }
+
+                    try {
+                        val responsePacket = DatagramPacket(buffer, buffer.size)
+
+                        socket.receive(responsePacket)
+
+                        val responseMsg = String(responsePacket.data, 0, responsePacket.length)
+                        val serverIp = responsePacket.address.hostAddress
+
+                        if (responseMsg.trim() == "ACK") {
+                            Log.d("UDP_HANDSHAKE", "✅ Le PC a répondu ! IP: $serverIp")
+
+                            onServerFound(serverIp)
+
+                            return@withContext
+                        }
+
+                    } catch (e: SocketTimeoutException) {
+                        Log.d("UDP_HANDSHAKE", "Pas de réponse, je recommence...")
+                    }
                 }
-
-                socket.close()
 
             } catch (e: Exception) {
                 e.printStackTrace()
+            } finally {
+                socket?.close()
             }
+        }
     }
-
 }

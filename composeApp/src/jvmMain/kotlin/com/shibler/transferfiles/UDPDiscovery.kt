@@ -2,6 +2,7 @@ package com.shibler.transferfiles
 
 import java.net.DatagramPacket
 import java.net.DatagramSocket
+import java.net.InetAddress
 
 
 class UDPDiscovery() {
@@ -31,16 +32,16 @@ class UDPDiscovery() {
             println("Message recu : $message")
             println("IP du telephone : $phoneIp")
 
-            /*val response = "HELLO_PHONE".toByteArray()
+            val response = "ACK".toByteArray()
 
             val replyPacket = DatagramPacket(
                 response,
                 response.size,
-                InetAddress.getByName("255.255.255.255"),
-                8888
+                packet.address,
+                packet.port
             )
 
-            socket.send(replyPacket)*/
+            socket.send(replyPacket)
 
 
             socket.close()

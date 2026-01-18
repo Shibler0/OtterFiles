@@ -1,5 +1,6 @@
 package com.shibler.transferfiles
 
+import UDPBroadcaster
 import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.ViewModel
@@ -33,7 +34,9 @@ class AndroidVM(): ViewModel()  {
 
             delay(500)
 
-            UDPBroadcaster().sendBroadcastSignal()
+            UDPBroadcaster().sendBroadcastAndListen { packet ->
+                println("packet recu: $packet")
+            }
         }
 
         _serverIP.value = model.getLocalIpAddress()

@@ -26,6 +26,7 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.Audiotrack
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Description
@@ -97,7 +98,8 @@ fun FileExplorerContent(vm : MainVM) {
                 }
             },
             isPhoneActive = isShowingPhone,
-            phoneIP = phoneIP
+            phoneIP = phoneIP,
+            fileSize = remoteFiles.size
         )
 
         Divider()
@@ -165,7 +167,7 @@ fun FileExplorerContent(vm : MainVM) {
 }
 
 @Composable
-fun TopNavigationRow(onShowPhone: () -> Unit, isPhoneActive: Boolean, phoneIP : String) {
+fun TopNavigationRow(onShowPhone: () -> Unit, isPhoneActive: Boolean, phoneIP : String, fileSize : Int) {
     Row(Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
         Button(
             onClick = onShowPhone,
@@ -176,6 +178,8 @@ fun TopNavigationRow(onShowPhone: () -> Unit, isPhoneActive: Boolean, phoneIP : 
             Text("Mon Téléphone ($phoneIP)")
         }
 
+        Icon(imageVector =  Icons.AutoMirrored.Filled.InsertDriveFile, tint = Color(0xFFFFC107),contentDescription = null)
+        Text("$fileSize")
     }
 }
 
@@ -204,7 +208,7 @@ fun FileItemRow(name: String, extension: String, isSelected : MutableState<Boole
         in listOf("zip", "rar", "7z", "tar", "gz") -> Icons.Default.Inventory
         in listOf("pdf", "doc", "docx", "txt", "rtf", "xls", "xlsx") -> Icons.Default.Description
         in listOf("xml", "json", "html", "css", "js", "kt") -> Icons.Default.Code
-        else -> Icons.Default.InsertDriveFile
+        else -> Icons.AutoMirrored.Filled.InsertDriveFile
     }
 
     Row(
