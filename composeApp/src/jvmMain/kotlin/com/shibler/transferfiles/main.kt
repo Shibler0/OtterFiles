@@ -24,6 +24,7 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
@@ -31,7 +32,6 @@ import androidx.compose.material.icons.filled.Audiotrack
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.PlayCircle
@@ -52,6 +52,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
@@ -88,12 +89,23 @@ fun FileExplorerContent(vm : MainVM) {
     var isShowingPhone by remember { mutableStateOf(false) }
     var isLoading = vm.isLoading.collectAsState().value
 
+    var query by remember { mutableStateOf("ro") }
+
+    val filteredItems = remember(query, remoteFiles) {
+        if (query.isBlank()) {
+            remoteFiles
+        } else {
+            remoteFiles.filter {
+                it.files.contains(query, ignoreCase = true)
+            }
+        }
+    }
 
     val scope = rememberCoroutineScope()
 
 
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize().background(Color(18, 18, 18, 255))) {
         TopNavigationRow(
             onShowPhone = {
                 isLoading = true
@@ -107,7 +119,7 @@ fun FileExplorerContent(vm : MainVM) {
             fileSize = remoteFiles.size
         )
 
-        Divider()
+        Divider(color = Color(47, 47, 47, 255))
 
         Box(modifier = Modifier.fillMaxSize()) {
             if (isLoading) {
@@ -123,7 +135,6 @@ fun FileExplorerContent(vm : MainVM) {
                         val newName = fileName.substringAfterLast("/")
                         val extension = fileName.substringAfterLast(".").lowercase()
 
-
                         FileItemRow(name = newName, extension = extension, isSelected = it.selectedFiles) {
                             if(selectedFiles.contains(fileName)) {
                                 vm.removeSelectedFile(fileName)
@@ -138,7 +149,7 @@ fun FileExplorerContent(vm : MainVM) {
                 }
                 if(selectedFiles.isNotEmpty()) {
 
-                        DownloadBtn(modifier = Modifier.align(Alignment.BottomCenter), progression = progression){
+                        DownloadBtn(modifier = Modifier.align(Alignment.BottomCenter), progression = progression, fileNumber = selectedFiles.size){
                             selectedFiles.forEach {
                                 scope.launch(Dispatchers.IO) {
                                     try {
@@ -173,26 +184,32 @@ fun FileExplorerContent(vm : MainVM) {
 
 @Composable
 fun TopNavigationRow(onShowPhone: () -> Unit, isPhoneActive: Boolean, phoneIP : String, fileSize : Int) {
+
+    val unbounded = FontFamily(Font(Res.font.unbounded))
+
     Row(Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
         Button(
             onClick = onShowPhone,
-            colors = ButtonDefaults.buttonColors(backgroundColor = if (isPhoneActive) Color.LightGray else Color.White)
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(30, 30, 30, 255)),
+            shape = RoundedCornerShape(15.dp),
+            modifier = Modifier
+                .clip(RoundedCornerShape(15.dp))
         ) {
-            Icon(Icons.Default.PhoneAndroid, null)
+            Icon(imageVector = Icons.Default.PhoneAndroid, tint = Color.White , contentDescription = null)
             Spacer(Modifier.width(4.dp))
-            Text("Mon Téléphone ($phoneIP)")
+            Text("Mon Téléphone ($phoneIP)", fontFamily = unbounded, fontWeight = FontWeight.Bold, color = Color.White)
         }
 
         Icon(imageVector =  Icons.AutoMirrored.Filled.InsertDriveFile, tint = Color(0xFFFFC107),contentDescription = null)
-        Text("$fileSize")
+        Text("$fileSize", fontFamily = unbounded, fontWeight = FontWeight.Bold, color = Color.White)
     }
 }
 
 @Composable
 fun FileItemRow(name: String, extension: String, isSelected : MutableState<Boolean>, onClick: () -> Unit = {}) {
 
-    val backgroundColor = if (isSelected.value) Color.LightGray else Color.White
-
+    val backgroundColor = if (isSelected.value) Color(18, 18, 18, 255).lighten(0.08f) else Color(0, 0, 0, 0)
+    val unbounded = FontFamily(Font(Res.font.unbounded))
 
     val iconTint = when (extension) {
         in listOf("mp3", "wav", "flac", "ogg", "m4a", "aac") -> Color(0xFFE91E63)
@@ -222,17 +239,17 @@ fun FileItemRow(name: String, extension: String, isSelected : MutableState<Boole
                 onClick()
             }
             .background(backgroundColor)
-            .padding(12.dp),
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(imageVector =  icon, tint = iconTint, contentDescription = null)
-        Text(name)
+        Icon(imageVector =  icon, tint = iconTint, contentDescription = null, modifier = Modifier.padding(end = 8.dp))
+        Text(name, fontFamily = unbounded, fontWeight = FontWeight.Bold, color = Color.White)
     }
 }
 
 
 @Composable
-fun DownloadBtn(modifier: Modifier, progression : Float = 0f, onClick: () -> Unit) {
+fun DownloadBtn(modifier: Modifier, progression : Float = 0f, fileNumber : Int, onClick: () -> Unit) {
 
     val unbounded = FontFamily(Font(Res.font.unbounded))
 
@@ -246,7 +263,7 @@ fun DownloadBtn(modifier: Modifier, progression : Float = 0f, onClick: () -> Uni
             .clickable{onClick()}
             .border(2.dp, brush = Brush.linearGradient(listOf(Color(153, 51, 255, 255), Color(217, 51, 255, 255)
             )), RoundedCornerShape(20.dp))
-            .background(Color.White, RoundedCornerShape(20.dp))
+            .background(Color(18, 18, 18, 255), RoundedCornerShape(20.dp))
             .drawWithCache {
                 val progress = progression
                 val progressWidth = size.width * progress
@@ -272,6 +289,17 @@ fun DownloadBtn(modifier: Modifier, progression : Float = 0f, onClick: () -> Uni
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(downloadtxt, fontSize = 16.sp, fontFamily = unbounded)
+        Text("$downloadtxt ($fileNumber)", fontSize = 16.sp, fontFamily = unbounded, color = Color.White)
     }
+}
+
+fun Color.lighten(factor: Float): Color {
+    require(factor in 0f..1f)
+
+    return Color(
+        red = red + (1f - red) * factor,
+        green = green + (1f - green) * factor,
+        blue = blue + (1f - blue) * factor,
+        alpha = alpha
+    )
 }
