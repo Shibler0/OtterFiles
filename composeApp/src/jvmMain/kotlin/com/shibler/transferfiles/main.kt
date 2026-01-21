@@ -4,6 +4,9 @@ import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,7 +27,6 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
@@ -51,6 +53,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -67,7 +70,8 @@ import kotlin.concurrent.thread
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
-        title = "TransferFiles",
+        title = "OtterFiles",
+        icon = painterResource("otterfileslogo.png")
     ) {
         val vm = MainVM()
         FileExplorerContent(vm)
@@ -89,7 +93,7 @@ fun FileExplorerContent(vm : MainVM) {
     var isShowingPhone by remember { mutableStateOf(false) }
     var isLoading = vm.isLoading.collectAsState().value
 
-    var query by remember { mutableStateOf("ro") }
+    var query by remember { mutableStateOf("") }
 
     val filteredItems = remember(query, remoteFiles) {
         if (query.isBlank()) {
@@ -208,8 +212,17 @@ fun TopNavigationRow(onShowPhone: () -> Unit, isPhoneActive: Boolean, phoneIP : 
 @Composable
 fun FileItemRow(name: String, extension: String, isSelected : MutableState<Boolean>, onClick: () -> Unit = {}) {
 
-    val backgroundColor = if (isSelected.value) Color(18, 18, 18, 255).lighten(0.08f) else Color(0, 0, 0, 0)
     val unbounded = FontFamily(Font(Res.font.unbounded))
+
+    val interactionSource = remember { MutableInteractionSource() } //0.05f
+    val isHovered by interactionSource.collectIsHoveredAsState()
+
+    val backgroundColor = when {
+        isSelected.value -> Color(18, 18, 18, 255).lighten(0.08f)
+        isHovered -> Color(18, 18, 18, 255).lighten(0.05f)
+        else -> Color(0, 0, 0, 0)
+    }
+
 
     val iconTint = when (extension) {
         in listOf("mp3", "wav", "flac", "ogg", "m4a", "aac") -> Color(0xFFE91E63)
@@ -234,10 +247,15 @@ fun FileItemRow(name: String, extension: String, isSelected : MutableState<Boole
     }
 
     Row(
-        Modifier.fillMaxWidth()
-            .clickable{
+        Modifier
+            .fillMaxWidth()
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null
+            ){
                 onClick()
             }
+            .hoverable(interactionSource)
             .background(backgroundColor)
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically

@@ -89,8 +89,14 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.shibler.transferfiles"
+            packageName = "OtterFiles"
             packageVersion = "1.0.0"
+
+            description = "Easily transfer your file from your android phone to your PC"
+
+            windows {
+                iconFile.set(project.file("src/jvmMain/resources/otterfileslogo.png"))
+            }
         }
     }
 }
