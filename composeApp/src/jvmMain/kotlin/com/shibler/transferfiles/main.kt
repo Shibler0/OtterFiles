@@ -16,12 +16,16 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
@@ -37,14 +41,9 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.PlayCircle
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,7 +52,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -65,6 +66,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.Font
 import transferfiles.composeapp.generated.resources.Res
 import transferfiles.composeapp.generated.resources.unbounded
+import javax.management.Query
 import kotlin.concurrent.thread
 
 fun main() = application {
@@ -89,11 +91,11 @@ fun FileExplorerContent(vm : MainVM) {
     val selectedFiles by vm.selectedFiles.collectAsState()
     val progression by vm.progress.collectAsState()
 
-
-    var isShowingPhone by remember { mutableStateOf(false) }
     var isLoading = vm.isLoading.collectAsState().value
 
-    var query by remember { mutableStateOf("") }
+    //var query by remember { mutableStateOf("") }
+    val query by vm.query.collectAsState()
+
 
     val filteredItems = remember(query, remoteFiles) {
         if (query.isBlank()) {
@@ -115,12 +117,12 @@ fun FileExplorerContent(vm : MainVM) {
                 isLoading = true
                 thread {
                     vm.setRemoteFiles(client.getRemoteFiles())
-                    isShowingPhone = true
                 }
             },
-            isPhoneActive = isShowingPhone,
             phoneIP = phoneIP,
-            fileSize = remoteFiles.size
+            fileSize = remoteFiles.size,
+            query = query,
+            vm = vm
         )
 
         Divider(color = Color(47, 47, 47, 255))
@@ -132,7 +134,7 @@ fun FileExplorerContent(vm : MainVM) {
                 LazyColumn(
                     state = listState
                 ) {
-                    items(remoteFiles) {
+                    items(filteredItems) {
 
                         val fileName = it.files
 
@@ -187,7 +189,7 @@ fun FileExplorerContent(vm : MainVM) {
 }
 
 @Composable
-fun TopNavigationRow(onShowPhone: () -> Unit, isPhoneActive: Boolean, phoneIP : String, fileSize : Int) {
+fun TopNavigationRow(onShowPhone: () -> Unit, phoneIP : String, fileSize : Int, query: String, vm: MainVM) {
 
     val unbounded = FontFamily(Font(Res.font.unbounded))
 
@@ -206,6 +208,57 @@ fun TopNavigationRow(onShowPhone: () -> Unit, isPhoneActive: Boolean, phoneIP : 
 
         Icon(imageVector =  Icons.AutoMirrored.Filled.InsertDriveFile, tint = Color(0xFFFFC107),contentDescription = null)
         Text("$fileSize", fontFamily = unbounded, fontWeight = FontWeight.Bold, color = Color.White)
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            BasicTextField(
+                value = query,
+                onValueChange = { vm.setQuery(it) },
+                singleLine = true,
+                textStyle = TextStyle(
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                ),
+                cursorBrush = SolidColor(Color(0xFFCECECE)),
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .border(
+                        width = 2.dp,
+                        color = Color.White.copy(alpha = 0.3f),
+                        shape = CircleShape
+                    )
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                decorationBox = { innerTextField ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Recherche",
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Box {
+                            if (query.isEmpty()) {
+                                Text(
+                                    text = "Rechercher...",
+                                    color = Color.White.copy(alpha = 0.5f),
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                            innerTextField()
+                        }
+                    }
+                }
+            )
+        }
+
+
     }
 }
 

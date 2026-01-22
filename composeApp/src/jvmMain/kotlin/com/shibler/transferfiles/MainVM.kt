@@ -31,6 +31,10 @@ class MainVM : ViewModel() {
     private val _progress = MutableStateFlow<Float>(0f)
     val progress = _progress.asStateFlow()
 
+    private val _query = MutableStateFlow("")
+    val query = _query.asStateFlow()
+
+
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -71,6 +75,9 @@ class MainVM : ViewModel() {
         _progress.value = 0f
     }
 
+    fun setQuery(query : String) {
+        _query.value = query
+    }
 
 
 }
