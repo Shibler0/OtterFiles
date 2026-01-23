@@ -1,5 +1,6 @@
 package com.shibler.transferfiles
 
+import com.shibler.transferfiles.domain.getAllFiles
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.File
@@ -34,7 +35,7 @@ class AndroidFileServer(private val vm: AndroidVM) {
 
                     if (command == "GET_LIST") {
 
-                        val files = Model().getAllFiles()
+                        val files = getAllFiles()
                         output.writeInt(files.size)
                         files.forEach { output.writeUTF(it) }
                     }

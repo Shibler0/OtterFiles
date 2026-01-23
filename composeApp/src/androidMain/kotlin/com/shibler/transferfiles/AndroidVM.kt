@@ -5,6 +5,8 @@ import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.shibler.transferfiles.domain.getAllFiles
+import com.shibler.transferfiles.domain.getLocalIpAddress
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,8 +14,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class AndroidVM(): ViewModel()  {
-
-    val model = Model()
     val server = AndroidFileServer(this)
 
     private val _serverIP = MutableStateFlow("Ip du serveur...")
@@ -40,19 +40,19 @@ class AndroidVM(): ViewModel()  {
 
         sendBroadcastHandshake()
 
-        _serverIP.value = model.getLocalIpAddress()
-        _fileList.value = model.getAllFiles()
+        _serverIP.value = getLocalIpAddress()
+        _fileList.value = getAllFiles()
     }
 
-    fun refreshFileList() {
+    /*fun refreshFileList() {
         Thread {
-            val results = Model().getAllFiles()
+            val results = getAllFiles()
             Handler(Looper.getMainLooper()).post {
                 _fileList.value = results
                 println("Scan terminé : ${results.size} fichiers trouvés")
             }
         }.start()
-    }
+    }*/
 
     fun updateStatus(newStatus: String) {
         _serverStatus.value = newStatus

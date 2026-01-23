@@ -20,7 +20,7 @@ class MainVM : ViewModel() {
     private val _selectedFiles = MutableStateFlow<List<String>>(emptyList())
     val selectedFiles = _selectedFiles.asStateFlow()
 
-    private val _serverSocketAddress = MutableStateFlow("?")
+    private val _serverSocketAddress = MutableStateFlow("?")//192.0.0.2
     val serverSocketAddress = _serverSocketAddress.asStateFlow()
 
     val desktopClient = DesktopClient(serverSocketAddress.value)
@@ -34,7 +34,8 @@ class MainVM : ViewModel() {
     private val _query = MutableStateFlow("")
     val query = _query.asStateFlow()
 
-
+    private val _isManual = MutableStateFlow(false)
+    val isManual = _isManual.asStateFlow()
 
     init {
         viewModelScope.launch(Dispatchers.IO) {

@@ -193,25 +193,28 @@ fun TopNavigationRow(onShowPhone: () -> Unit, phoneIP : String, fileSize : Int, 
 
     val unbounded = FontFamily(Font(Res.font.unbounded))
 
-    Row(Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-        Button(
-            onClick = onShowPhone,
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(30, 30, 30, 255)),
-            shape = RoundedCornerShape(15.dp),
-            modifier = Modifier
-                .clip(RoundedCornerShape(15.dp))
-        ) {
-            Icon(imageVector = Icons.Default.PhoneAndroid, tint = Color.White , contentDescription = null)
-            Spacer(Modifier.width(4.dp))
-            Text("Mon Téléphone ($phoneIP)", fontFamily = unbounded, fontWeight = FontWeight.Bold, color = Color.White)
-        }
+    Column {
+        Row(Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Button(
+                onClick = onShowPhone,
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(30, 30, 30, 255)),
+                shape = RoundedCornerShape(15.dp),
+                modifier = Modifier
+                    .clip(RoundedCornerShape(15.dp))
+            ) {
+                Icon(imageVector = Icons.Default.PhoneAndroid, tint = Color.White , contentDescription = null)
+                Spacer(Modifier.width(4.dp))
+                Text("Mon Téléphone ($phoneIP)", fontFamily = unbounded, fontWeight = FontWeight.Bold, color = Color.White)
+            }
 
-        Icon(imageVector =  Icons.AutoMirrored.Filled.InsertDriveFile, tint = Color(0xFFFFC107),contentDescription = null)
-        Text("$fileSize", fontFamily = unbounded, fontWeight = FontWeight.Bold, color = Color.White)
+            Icon(imageVector =  Icons.AutoMirrored.Filled.InsertDriveFile, tint = Color(0xFFFFC107),contentDescription = null)
+            Text("$fileSize", fontFamily = unbounded, fontWeight = FontWeight.Bold, color = Color.White)
+        }
 
         Row(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
             horizontalArrangement = Arrangement.Center
         ) {
             BasicTextField(
@@ -257,9 +260,9 @@ fun TopNavigationRow(onShowPhone: () -> Unit, phoneIP : String, fileSize : Int, 
                 }
             )
         }
-
-
     }
+
+
 }
 
 @Composable
