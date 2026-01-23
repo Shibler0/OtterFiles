@@ -1,6 +1,6 @@
 package com.shibler.transferfiles
 
-import UDPBroadcaster
+import com.shibler.transferfiles.domain.UDPBroadcaster
 import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.ViewModel
