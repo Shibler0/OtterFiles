@@ -1,5 +1,6 @@
 package com.shibler.transferfiles
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,10 +26,8 @@ import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -52,7 +51,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -66,7 +67,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.Font
 import transferfiles.composeapp.generated.resources.Res
 import transferfiles.composeapp.generated.resources.unbounded
-import javax.management.Query
+import java.io.ByteArrayInputStream
 import kotlin.concurrent.thread
 
 fun main() = application {
@@ -92,6 +93,8 @@ fun FileExplorerContent(vm : MainVM) {
     val progression by vm.progress.collectAsState()
 
     var isLoading = vm.isLoading.collectAsState().value
+    val thumnails by vm.thumbnails.collectAsState()
+
 
     //var query by remember { mutableStateOf("") }
     val query by vm.query.collectAsState()
@@ -109,14 +112,13 @@ fun FileExplorerContent(vm : MainVM) {
 
     val scope = rememberCoroutineScope()
 
-
-
     Column(modifier = Modifier.fillMaxSize().background(Color(18, 18, 18, 255))) {
         TopNavigationRow(
             onShowPhone = {
                 isLoading = true
                 thread {
                     vm.setRemoteFiles(client.getRemoteFiles())
+                    //vm.setThumbnails(client.getThumbnails())
                 }
             },
             phoneIP = phoneIP,
@@ -135,6 +137,8 @@ fun FileExplorerContent(vm : MainVM) {
                     state = listState
                 ) {
                     items(filteredItems) {
+
+                        //Image(bitmap = it.toImageBitmap(), contentDescription = null)
 
                         val fileName = it.files
 
@@ -377,3 +381,7 @@ fun Color.lighten(factor: Float): Color {
         alpha = alpha
     )
 }
+
+fun ByteArray.toImageBitmap(): ImageBitmap =
+    loadImageBitmap(ByteArrayInputStream(this))
+

@@ -25,7 +25,7 @@ kotlin {
             implementation(libs.androidx.core.splashscreen)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.androidx.lifecycle.viewmodel.ktx)
-
+            implementation("io.coil-kt:coil-compose:2.7.0")
 
         }
         commonMain.dependencies {

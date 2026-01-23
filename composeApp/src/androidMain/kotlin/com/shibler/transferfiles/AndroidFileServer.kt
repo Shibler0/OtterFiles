@@ -1,6 +1,6 @@
 package com.shibler.transferfiles
 
-import com.shibler.transferfiles.domain.getAllFiles
+import java.io.BufferedOutputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.File
@@ -35,7 +35,7 @@ class AndroidFileServer(private val vm: AndroidVM) {
 
                     if (command == "GET_LIST") {
 
-                        val files = getAllFiles()
+                        val files = vm.fileList.value
                         output.writeInt(files.size)
                         files.forEach { output.writeUTF(it) }
                     }
@@ -58,6 +58,18 @@ class AndroidFileServer(private val vm: AndroidVM) {
                         } else {
                             output.writeLong(0L)
                         }
+                    }
+
+                    if (command.startsWith("GET_THUMBNAIL")) {
+                        val thumbnails = vm.compressedImages.value.filterNotNull()
+
+                        output.writeInt(thumbnails.size)
+
+                        thumbnails.forEach {
+                            output.writeInt(it.size)
+                            output.write(it)
+                        }
+                        output.flush()
                     }
 
                     socket.close()

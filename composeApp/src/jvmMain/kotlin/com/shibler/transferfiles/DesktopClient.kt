@@ -49,6 +49,22 @@ class DesktopClient(val ip : String , val port: Int = 9999) {
         return result.getOrDefault(listOf("ERREUR DE CONNEXION"))
     }
 
+    fun getThumbnails() : List<ByteArray> {
+        val result = sendSocketCommand("GET_THUMBNAIL") {
+            val listSize = it.readInt()
+            val thumbnails = mutableListOf<ByteArray>()
+
+            for(i in 0 until listSize) {
+                val thumbnailSize = it.readInt()
+                val thumbnail = ByteArray(thumbnailSize)
+                it.readFully(thumbnail)
+                thumbnails.add(thumbnail)
+            }
+            thumbnails
+        }
+        return result.getOrDefault(listOf())
+    }
+
     fun downloadFile(fileDirectory: String, vm: MainVM) {
 
         val fileName = fileDirectory.substringAfterLast("/")
@@ -82,7 +98,6 @@ class DesktopClient(val ip : String , val port: Int = 9999) {
 
                     fileOutput.write(buffer, 0, bytesRead)
                     totalBytesRead += bytesRead
-                    //println("nombre de gigas recus : ${BytesToGigabytes(totalBytesRead)}")
                     vm.setProgressionState(fileSize, totalBytesRead)
                 }
                 vm.resetProgressionState()

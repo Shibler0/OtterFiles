@@ -34,8 +34,9 @@ class MainVM : ViewModel() {
     private val _query = MutableStateFlow("")
     val query = _query.asStateFlow()
 
-    private val _isManual = MutableStateFlow(false)
-    val isManual = _isManual.asStateFlow()
+    private val _thumbnails = MutableStateFlow<List<ByteArray>>(emptyList())
+    val thumbnails = _thumbnails.asStateFlow()
+
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -44,6 +45,9 @@ class MainVM : ViewModel() {
                 _isLoading.value = false
             }
             desktopClient
+
+
+
         }
     }
 
@@ -78,6 +82,10 @@ class MainVM : ViewModel() {
 
     fun setQuery(query : String) {
         _query.value = query
+    }
+
+    fun setThumbnails(newThumbnails : List<ByteArray>) {
+        _thumbnails.value = newThumbnails
     }
 
 

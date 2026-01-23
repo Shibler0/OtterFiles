@@ -1,10 +1,9 @@
 package com.shibler.transferfiles
 
-import com.shibler.transferfiles.domain.UDPBroadcaster
-import android.os.Handler
-import android.os.Looper
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.shibler.transferfiles.domain.ThumbnailGenerator
+import com.shibler.transferfiles.domain.UDPBroadcaster
 import com.shibler.transferfiles.domain.getAllFiles
 import com.shibler.transferfiles.domain.getLocalIpAddress
 import kotlinx.coroutines.Dispatchers
@@ -28,34 +27,48 @@ class AndroidVM(): ViewModel()  {
     var isSearching = MutableStateFlow(false)
         private set
 
+    private val _compressedImages = MutableStateFlow<List<ByteArray?>>(emptyList())
+    val compressedImages = _compressedImages.asStateFlow()
+
+
     init {
+        startServer()
+        getServerIP()
+        _fileList.value = getAllFiles()
+        loadThumbnail()
+    }
+
+    fun updateStatus(newStatus: String) {
+        _serverStatus.value = newStatus
+    }
+
+    fun loadThumbnail() {
+        viewModelScope.launch {
+            _fileList.value.forEach {
+                if(it.substringAfterLast(".") == "jpg") {
+                    _compressedImages.value += ThumbnailGenerator().invoke(it)
+                }
+
+            }
+        }
+    }
+
+    fun getServerIP() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _serverIP.value = getLocalIpAddress()
+        }
+
+    }
+
+    fun startServer() {
         viewModelScope.launch(Dispatchers.IO) {
             launch {
                 server.start()
             }
-
             delay(500)
-
+            sendBroadcastHandshake()
         }
 
-        sendBroadcastHandshake()
-
-        _serverIP.value = getLocalIpAddress()
-        _fileList.value = getAllFiles()
-    }
-
-    /*fun refreshFileList() {
-        Thread {
-            val results = getAllFiles()
-            Handler(Looper.getMainLooper()).post {
-                _fileList.value = results
-                println("Scan terminé : ${results.size} fichiers trouvés")
-            }
-        }.start()
-    }*/
-
-    fun updateStatus(newStatus: String) {
-        _serverStatus.value = newStatus
     }
 
     fun sendBroadcastHandshake() {
@@ -74,5 +87,6 @@ class AndroidVM(): ViewModel()  {
         }
 
     }
+
 
 }

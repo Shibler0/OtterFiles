@@ -15,12 +15,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -36,17 +39,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.Font
 import transferfiles.composeapp.generated.resources.Res
 import transferfiles.composeapp.generated.resources.unbounded
+import java.io.File
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,6 +88,7 @@ fun AndroidAppContent(paddingValues: PaddingValues, vm : AndroidVM) {
     val unbounded = FontFamily(Font(Res.font.unbounded))
     val serverStatus by vm.serverStatus.collectAsStateWithLifecycle()
     val isSearching by vm.isSearching.collectAsStateWithLifecycle()
+    val compressedImages by vm.compressedImages.collectAsStateWithLifecycle()
 
 
 
@@ -93,7 +100,27 @@ fun AndroidAppContent(paddingValues: PaddingValues, vm : AndroidVM) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Text("Fichiers détectés : ${fileList.size}", style = MaterialTheme.typography.headlineSmall)
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(minSize = 100.dp),
+            contentPadding = PaddingValues(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(compressedImages.size) {
+
+                AsyncImage(
+                    model = compressedImages[it],
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .aspectRatio(1f)
+                        .clip(RoundedCornerShape(16.dp))
+                )
+            }
+        }
+
+
+        /*Text("Fichiers détectés : ${fileList.size}", style = MaterialTheme.typography.headlineSmall)
 
         LazyColumn(Modifier.weight(1f)) {
             items(fileList) { fileName ->
@@ -127,7 +154,7 @@ fun AndroidAppContent(paddingValues: PaddingValues, vm : AndroidVM) {
 
         Text(serverIP, fontSize = 12.sp, modifier = Modifier.align(Alignment.End))
 
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(30.dp))*/
 
     }
 }
