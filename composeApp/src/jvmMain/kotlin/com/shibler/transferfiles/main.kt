@@ -11,8 +11,10 @@ import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +22,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
@@ -53,6 +57,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -118,7 +123,7 @@ fun FileExplorerContent(vm : MainVM) {
                 isLoading = true
                 thread {
                     vm.setRemoteFiles(client.getRemoteFiles())
-                    //vm.setThumbnails(client.getThumbnails())
+                    vm.addThumbnail(client.getThumbnails())
                 }
             },
             phoneIP = phoneIP,
@@ -133,7 +138,25 @@ fun FileExplorerContent(vm : MainVM) {
             if (isLoading) {
                 CircularProgressIndicator(Modifier.align(Alignment.Center))
             } else {
-                LazyColumn(
+
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(minSize = 100.dp),
+                    contentPadding = PaddingValues(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(thumnails.size) {
+                        Image(bitmap = thumnails[it].thumbnail.toImageBitmap(), contentDescription = null)
+
+                        Text(
+                            thumnails[it].path.substringAfterLast(
+                                "/"
+                            ), fontSize = 12.sp, color = Color.White
+                        )
+                    }
+                }
+
+                /*LazyColumn(
                     state = listState
                 ) {
                     items(filteredItems) {
@@ -156,7 +179,7 @@ fun FileExplorerContent(vm : MainVM) {
                             }
                         }
                     }
-                }
+                }*/
                 if(selectedFiles.isNotEmpty()) {
 
                         DownloadBtn(modifier = Modifier.align(Alignment.BottomCenter), progression = progression, fileNumber = selectedFiles.size){

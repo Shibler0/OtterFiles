@@ -10,6 +10,25 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 data class FileList(val files : String, var selectedFiles : MutableState<Boolean> = mutableStateOf(false))
+data class Thumbnail(val path : String, val thumbnail : ByteArray) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Thumbnail
+
+        if (path != other.path) return false
+        if (!thumbnail.contentEquals(other.thumbnail)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = path.hashCode()
+        result = 31 * result + (thumbnail.contentHashCode())
+        return result
+    }
+}
 
 
 class MainVM : ViewModel() {
@@ -34,7 +53,7 @@ class MainVM : ViewModel() {
     private val _query = MutableStateFlow("")
     val query = _query.asStateFlow()
 
-    private val _thumbnails = MutableStateFlow<List<ByteArray>>(emptyList())
+    private val _thumbnails = MutableStateFlow<List<Thumbnail>>(emptyList())
     val thumbnails = _thumbnails.asStateFlow()
 
 
@@ -82,7 +101,7 @@ class MainVM : ViewModel() {
         _query.value = query
     }
 
-    fun setThumbnails(newThumbnails : List<ByteArray>) {
+    fun addThumbnail(newThumbnails : List<Thumbnail>) {
         _thumbnails.value = newThumbnails
     }
 

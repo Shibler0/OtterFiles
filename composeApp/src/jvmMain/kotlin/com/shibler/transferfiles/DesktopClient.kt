@@ -49,16 +49,17 @@ class DesktopClient(val ip : String , val port: Int = 9999) {
         return result.getOrDefault(listOf("ERREUR DE CONNEXION"))
     }
 
-    fun getThumbnails() : List<ByteArray> {
+    fun getThumbnails() : List<Thumbnail> {
         val result = sendSocketCommand("GET_THUMBNAIL") {
             val listSize = it.readInt()
-            val thumbnails = mutableListOf<ByteArray>()
+            val thumbnails = mutableListOf<Thumbnail>()
 
             for(i in 0 until listSize) {
                 val thumbnailSize = it.readInt()
                 val thumbnail = ByteArray(thumbnailSize)
                 it.readFully(thumbnail)
-                thumbnails.add(thumbnail)
+                val path = it.readUTF()
+                thumbnails.add(Thumbnail(path, thumbnail))
             }
             thumbnails
         }
