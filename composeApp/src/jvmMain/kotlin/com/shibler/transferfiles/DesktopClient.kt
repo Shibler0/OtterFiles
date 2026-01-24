@@ -56,8 +56,14 @@ class DesktopClient(val ip : String , val port: Int = 9999) {
 
             for(i in 0 until listSize) {
                 val thumbnailSize = it.readInt()
-                val thumbnail = ByteArray(thumbnailSize)
-                it.readFully(thumbnail)
+
+                val thumbnail = if(thumbnailSize > 0) {
+                    val bytes = ByteArray(thumbnailSize)
+                    it.readFully(bytes)
+                    bytes
+                } else {
+                    null
+                }
                 val path = it.readUTF()
                 thumbnails.add(Thumbnail(path, thumbnail))
             }

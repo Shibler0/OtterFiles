@@ -59,18 +59,21 @@ class AndroidFileServer(private val vm: AndroidVM) {
                     }
 
                     if (command.startsWith("GET_THUMBNAIL")) {
-                        val thumbnails = vm.compressedImages.value.filter {
-                            it.thumbnail != null && it.thumbnail.isNotEmpty()
-                        }
+                        val thumbnails = vm.compressedImages.value
+                            //.filter { it.thumbnail != null && it.thumbnail.isNotEmpty() }
 
                         output.writeInt(thumbnails.size)
 
                         thumbnails.forEach {
 
-                            val bytes = it.thumbnail!!
+                            val bytes = it.thumbnail
 
-                            output.writeInt(bytes.size)
-                            output.write(bytes)
+                            output.writeInt(bytes?.size ?: 0)
+
+                            if(bytes != null) {
+                                output.write(bytes)
+                            }
+
                             output.writeUTF(it.path)
                         }
                         output.flush()
