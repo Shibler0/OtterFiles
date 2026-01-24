@@ -2,6 +2,7 @@ package com.shibler.transferfiles
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.shibler.transferfiles.domain.Picture
 import com.shibler.transferfiles.domain.ThumbnailGenerator
 import com.shibler.transferfiles.domain.UDPBroadcaster
 import com.shibler.transferfiles.domain.getAllFiles
@@ -21,13 +22,13 @@ class AndroidVM(): ViewModel()  {
     private val _fileList = MutableStateFlow<List<String>>(emptyList())
     val fileList = _fileList.asStateFlow()
 
-    private val _serverStatus = MutableStateFlow("En attente de connexion...")
+    private val _serverStatus = MutableStateFlow("")
     val serverStatus = _serverStatus.asStateFlow()
 
     var isSearching = MutableStateFlow(false)
         private set
 
-    private val _compressedImages = MutableStateFlow<List<ByteArray?>>(emptyList())
+    private val _compressedImages = MutableStateFlow<List<Picture>>(emptyList())
     val compressedImages = _compressedImages.asStateFlow()
 
 
@@ -45,10 +46,7 @@ class AndroidVM(): ViewModel()  {
     fun loadThumbnail() {
         viewModelScope.launch {
             _fileList.value.forEach {
-                if(it.substringAfterLast(".") == "jpg") {
-                    _compressedImages.value += ThumbnailGenerator().invoke(it)
-                }
-
+                _compressedImages.value += Picture(it, ThumbnailGenerator().invoke(it))
             }
         }
     }
@@ -76,11 +74,11 @@ class AndroidVM(): ViewModel()  {
         if(isSearching.value) return
         isSearching.value = true
 
-        _serverStatus.value = "En attente de réponse..."
+        _serverStatus.value = "En attente d'une connexion..."
 
         viewModelScope.launch(Dispatchers.IO) {
             UDPBroadcaster().sendBroadcastAndListen { ip ->
-                _serverStatus.value = "Connecté !"
+                _serverStatus.value = "Connecté"
                 isSearching.value = false
                 println("packet recu: $ip")
             }

@@ -11,6 +11,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -25,6 +26,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -91,84 +93,104 @@ fun AndroidAppContent(paddingValues: PaddingValues, vm : AndroidVM) {
     val compressedImages by vm.compressedImages.collectAsStateWithLifecycle()
 
 
-
-    Column(
-        Modifier
-            .fillMaxSize()
-            .padding(start = 16.dp, end = 16.dp, top = paddingValues.calculateTopPadding(), bottom = paddingValues.calculateBottomPadding()),
-        verticalArrangement = Arrangement.Bottom,
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = Modifier
+            .background(Color(18, 18, 18, 255))
+            .padding(start = 16.dp, end = 16.dp, top = paddingValues.calculateTopPadding(), bottom = paddingValues.calculateBottomPadding())
+            .fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
 
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 100.dp),
-            contentPadding = PaddingValues(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(compressedImages.size) {
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 100.dp),
+                contentPadding = PaddingValues(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(compressedImages.size) {
 
-                AsyncImage(
-                    model = compressedImages[it],
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .aspectRatio(1f)
-                        .clip(RoundedCornerShape(16.dp))
-                )
+                    AsyncImage(
+                        model = compressedImages[it].thumbnail,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(16.dp))
+                    )
+
+                    Text(compressedImages[it].path.substringAfterLast("/"), fontSize = 12.sp, color = Color.White)
+                }
             }
-        }
-
-
-        /*Text("Fichiers détectés : ${fileList.size}", style = MaterialTheme.typography.headlineSmall)
-
-        LazyColumn(Modifier.weight(1f)) {
-            items(fileList) { fileName ->
-                Text(fileName, fontSize = 12.sp, modifier = Modifier.padding(4.dp))
-            }
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("Statut serveur :", color = Color.Black, fontSize = 14.sp)
-            Text(serverStatus, color = Color.Black, fontSize = 14.sp)
-        }
 
         SendBroadcastBtn(
             onClick = {
                 vm.sendBroadcastHandshake()
-            }
+            },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(bottom = 16.dp)
         ) {
-            Spacer(modifier = Modifier.weight(1f))
 
-            Text("En attente d'une connexion", color = Color.White, fontSize = 16.sp, fontFamily = unbounded, modifier = Modifier.weight(2f).align(Alignment.CenterHorizontally))
+            Text(serverStatus, color = Color.White, fontSize = 16.sp, fontFamily = unbounded)
             if(isSearching) {
                 CircularProgressIndicator(modifier = Modifier.padding(end = 10.dp).size(30.dp), color = Color.White)
             }
-
         }
 
-        Text(serverIP, fontSize = 12.sp, modifier = Modifier.align(Alignment.End))
 
-        Spacer(modifier = Modifier.height(30.dp))*/
+            /*Text("Fichiers détectés : ${fileList.size}", style = MaterialTheme.typography.headlineSmall)
+
+            LazyColumn(Modifier.weight(1f)) {
+                items(fileList) { fileName ->
+                    Text(fileName, fontSize = 12.sp, modifier = Modifier.padding(4.dp))
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Statut serveur :", color = Color.Black, fontSize = 14.sp)
+                Text(serverStatus, color = Color.Black, fontSize = 14.sp)
+            }
+
+            SendBroadcastBtn(
+                onClick = {
+                    vm.sendBroadcastHandshake()
+                }
+            ) {
+                Spacer(modifier = Modifier.weight(1f))
+
+                Text("En attente d'une connexion", color = Color.White, fontSize = 16.sp, fontFamily = unbounded, modifier = Modifier.weight(2f).align(Alignment.CenterHorizontally))
+                if(isSearching) {
+                    CircularProgressIndicator(modifier = Modifier.padding(end = 10.dp).size(30.dp), color = Color.White)
+                }
+
+            }
+
+            Text(serverIP, fontSize = 12.sp, modifier = Modifier.align(Alignment.End))
+
+            Spacer(modifier = Modifier.height(30.dp))*/
+
 
     }
+
+
 }
 
 
 @Composable
-fun SendBroadcastBtn(onClick: () -> Unit = {} , composable : @Composable () -> Unit = {}) {
+fun SendBroadcastBtn(modifier: Modifier = Modifier, onClick: () -> Unit = {} , composable : @Composable () -> Unit = {}) {
 
     Row(
         modifier = Modifier
+            .then(modifier)
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
+            .clip(CircleShape)
             .background(Brush.linearGradient(listOf(Color(45, 61, 190, 255), Color(22, 50, 190, 255))),
-                RoundedCornerShape(16.dp)
+                CircleShape
             )
             .clickable{ onClick() }
             .padding(top = 8.dp, bottom = 8.dp),

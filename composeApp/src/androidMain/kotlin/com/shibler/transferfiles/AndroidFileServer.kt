@@ -1,6 +1,5 @@
 package com.shibler.transferfiles
 
-import java.io.BufferedOutputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.File
@@ -21,7 +20,6 @@ class AndroidFileServer(private val vm: AndroidVM) {
 
             while (isRunning) {
                 try {
-                    vm.updateStatus("En attente de connexion...")
 
                     val socket = serverSocket.accept()
                     val input = DataInputStream(socket.getInputStream())
@@ -66,8 +64,8 @@ class AndroidFileServer(private val vm: AndroidVM) {
                         output.writeInt(thumbnails.size)
 
                         thumbnails.forEach {
-                            output.writeInt(it.size)
-                            output.write(it)
+                            output.writeInt(it.thumbnail?.size ?: 0)
+                            output.write(it.thumbnail)
                         }
                         output.flush()
                     }
