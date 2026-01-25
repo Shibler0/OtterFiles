@@ -21,8 +21,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.CircleShape
@@ -35,15 +38,18 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
+import androidx.compose.material.icons.automirrored.filled.ViewList
 import androidx.compose.material.icons.filled.Audiotrack
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.Preview
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ViewList
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -99,7 +105,7 @@ fun FileExplorerContent(vm : MainVM) {
 
     var isLoading = vm.isLoading.collectAsState().value
     val thumbnails by vm.thumbnails.collectAsState()
-
+    var isList by remember { mutableStateOf(false) }
 
     //var query by remember { mutableStateOf("") }
     val query by vm.query.collectAsState()
@@ -111,6 +117,16 @@ fun FileExplorerContent(vm : MainVM) {
         } else {
             remoteFiles.filter {
                 it.files.contains(query, ignoreCase = true)
+            }
+        }
+    }
+
+    val filteredThumbnails = remember(query, thumbnails) {
+        if (query.isBlank()) {
+            thumbnails
+        } else {
+            thumbnails.filter {
+                it.path.contains(query, ignoreCase = true)
             }
         }
     }
@@ -136,53 +152,38 @@ fun FileExplorerContent(vm : MainVM) {
 
         Box(modifier = Modifier.fillMaxSize()) {
 
-            changeList(modifier = Modifier.align(Alignment.TopEnd))
-
             if (isLoading) {
                 CircularProgressIndicator(Modifier.align(Alignment.Center))
             } else {
 
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 100.dp),
-                    contentPadding = PaddingValues(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(thumbnails.size) {
-                        /*if(thumbnails[it].thumbnail != null) {
-                            Image(bitmap = thumbnails[it].thumbnail!!.toImageBitmap(), contentDescription = null, contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .aspectRatio(1f)
-                                    .clip(RoundedCornerShape(16.dp)))
-                        }
+                if(!isList) {
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(minSize = 100.dp),
+                        contentPadding = PaddingValues(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(filteredThumbnails) {
 
-                        Text(
-                            thumbnails[it].path.substringAfterLast(
-                                "/"
-                            ), fontSize = 12.sp, color = Color.White
-                        )*/
+                            val fileName = it.path
 
-                        val fileName = thumbnails[it].path
-
-                        ItemListPicture(thumbnails[it], isSelected = thumbnails[it].selectedFiles) {
-                            if(selectedFiles.contains(fileName)) {
-                                vm.removeSelectedFile(fileName)
-                                thumbnails[it].selectedFiles.value = false
-                            } else {
-                                thumbnails[it].selectedFiles.value = true
-                                vm.addSelectedFile(fileName)
-                                println(vm.selectedFiles.value)
+                            ItemListPicture(it, isSelected = it.selectedFiles) {
+                                if(selectedFiles.contains(fileName)) {
+                                    vm.removeSelectedFile(fileName)
+                                    it.selectedFiles.value = false
+                                } else {
+                                    it.selectedFiles.value = true
+                                    vm.addSelectedFile(fileName)
+                                    println(vm.selectedFiles.value)
+                                }
                             }
                         }
                     }
-                }
-
-                /*LazyColumn(
+                } else {
+                    LazyColumn(
                     state = listState
                 ) {
                     items(filteredItems) {
-
-                        //Image(bitmap = it.toImageBitmap(), contentDescription = null)
 
                         val fileName = it.files
 
@@ -200,7 +201,12 @@ fun FileExplorerContent(vm : MainVM) {
                             }
                         }
                     }
-                }*/
+                }
+                }
+
+
+
+
                 if(selectedFiles.isNotEmpty()) {
 
                         DownloadBtn(modifier = Modifier.align(Alignment.BottomCenter), progression = progression, fileNumber = selectedFiles.size){
@@ -224,6 +230,20 @@ fun FileExplorerContent(vm : MainVM) {
                 }
 
             }
+
+            changeList(modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.TopEnd),
+                isList = mutableStateOf(isList),
+                onClickList = {
+                    isList = true
+                    vm.emptySelectedFiles()
+                              },
+                onClickGrid = {
+                    isList = false
+                    vm.emptySelectedFiles()
+                }
+            )
 
             VerticalScrollbar(
                 adapter = rememberScrollbarAdapter(listState),
@@ -313,21 +333,15 @@ fun TopNavigationRow(onShowPhone: () -> Unit, phoneIP : String, fileSize : Int, 
 
 }
 
-@Preview
 @Composable
-fun changeList(modifier: Modifier = Modifier) {
-
-    var isList by remember { mutableStateOf(true) }
-
-
-
+fun changeList(modifier: Modifier = Modifier, isList : MutableState<Boolean>, onClickList : () -> Unit = {}, onClickGrid : () -> Unit = {}) {
     Row(
         modifier = Modifier
             .then(modifier)
-            .background(Color(30, 30, 30, 255), RoundedCornerShape(8.dp))
+            .background(Color(30, 30, 30, 255), RoundedCornerShape(16.dp))
     ) {
-        Icon(imageVector =  Icons.Default.Audiotrack, tint = Color.White, contentDescription = null, modifier = Modifier.padding(8.dp))
-        Icon(imageVector =  Icons.Default.Preview, tint = Color.White, contentDescription = null, modifier = Modifier.padding(8.dp))
+        Icon(imageVector =  Icons.Default.GridView, tint = if (isList.value) Color.White else Color.Gray, contentDescription = null, modifier = Modifier.padding(8.dp).clickable { onClickGrid() })
+        Icon(imageVector = Icons.AutoMirrored.Filled.ViewList, tint = if (!isList.value) Color.White else Color.Gray, contentDescription = null, modifier = Modifier.padding(8.dp).clickable { onClickList() })
     }
 }
 
@@ -335,7 +349,7 @@ fun changeList(modifier: Modifier = Modifier) {
 fun ItemListPicture(thumbnail: Thumbnail,isSelected : MutableState<Boolean> = mutableStateOf(false), onClick: () -> Unit = {}) {
 
     val unbounded = FontFamily(Font(Res.font.unbounded))
-    val size = if(isSelected.value) 1.2f else 1f
+    val size = if(isSelected.value) 90.dp else 100.dp
 
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
@@ -347,13 +361,21 @@ fun ItemListPicture(thumbnail: Thumbnail,isSelected : MutableState<Boolean> = mu
     }
 
     if(thumbnail.thumbnail != null) {
-        Image(bitmap = thumbnail.thumbnail.toImageBitmap(), contentDescription = null, contentScale = ContentScale.Crop,
+        Box(
             modifier = Modifier
-                .aspectRatio(size)
-                .clickable { onClick() }
-                .clip(RoundedCornerShape(4.dp))
-                .background(backgroundColor)
-        )
+                .size(100.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Image(bitmap = thumbnail.thumbnail.toImageBitmap(), contentDescription = null, contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(size)
+                    .aspectRatio(1f)
+                    .clickable { onClick() }
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(backgroundColor)
+            )
+        }
+
     } else {
         Text(
             thumbnail.path.substringAfterLast(
@@ -363,8 +385,6 @@ fun ItemListPicture(thumbnail: Thumbnail,isSelected : MutableState<Boolean> = mu
             modifier = Modifier.clickable { onClick() }
         )
     }
-
-
 }
 
 @Composable

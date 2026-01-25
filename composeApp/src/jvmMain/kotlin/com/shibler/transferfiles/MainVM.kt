@@ -105,5 +105,8 @@ class MainVM : ViewModel() {
         _thumbnails.value = newThumbnails
     }
 
+    fun emptySelectedFiles(){
+        _selectedFiles.value = emptyList()
+    }
 
 }
