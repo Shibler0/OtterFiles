@@ -160,8 +160,8 @@ fun FileExplorerContent(vm : MainVM) {
                     LazyVerticalGrid(
                         columns = GridCells.Adaptive(minSize = 100.dp),
                         contentPadding = PaddingValues(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         items(filteredThumbnails) {
 
