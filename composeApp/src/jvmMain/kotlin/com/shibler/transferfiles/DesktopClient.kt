@@ -65,7 +65,7 @@ class DesktopClient(val ip : String , val port: Int = 9999) {
                     null
                 }
                 val path = it.readUTF()
-                thumbnails.add(Thumbnail(path, thumbnail))
+                thumbnails.add(Thumbnail(path, thumbnail = thumbnail))
             }
             thumbnails
         }

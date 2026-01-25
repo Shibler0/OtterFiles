@@ -42,6 +42,7 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.Preview
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -68,6 +69,7 @@ import androidx.compose.ui.window.application
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.Font
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import transferfiles.composeapp.generated.resources.Res
 import transferfiles.composeapp.generated.resources.unbounded
 import java.io.ByteArrayInputStream
@@ -133,6 +135,9 @@ fun FileExplorerContent(vm : MainVM) {
         Divider(color = Color(47, 47, 47, 255))
 
         Box(modifier = Modifier.fillMaxSize()) {
+
+            changeList(modifier = Modifier.align(Alignment.TopEnd))
+
             if (isLoading) {
                 CircularProgressIndicator(Modifier.align(Alignment.Center))
             } else {
@@ -144,19 +149,31 @@ fun FileExplorerContent(vm : MainVM) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(thumbnails.size) {
-                        if(thumbnails[it].thumbnail != null) {
+                        /*if(thumbnails[it].thumbnail != null) {
                             Image(bitmap = thumbnails[it].thumbnail!!.toImageBitmap(), contentDescription = null, contentScale = ContentScale.Crop,
                                 modifier = Modifier
                                     .aspectRatio(1f)
                                     .clip(RoundedCornerShape(16.dp)))
                         }
 
-
                         Text(
                             thumbnails[it].path.substringAfterLast(
                                 "/"
                             ), fontSize = 12.sp, color = Color.White
-                        )
+                        )*/
+
+                        val fileName = thumbnails[it].path
+
+                        ItemListPicture(thumbnails[it], isSelected = thumbnails[it].selectedFiles) {
+                            if(selectedFiles.contains(fileName)) {
+                                vm.removeSelectedFile(fileName)
+                                thumbnails[it].selectedFiles.value = false
+                            } else {
+                                thumbnails[it].selectedFiles.value = true
+                                vm.addSelectedFile(fileName)
+                                println(vm.selectedFiles.value)
+                            }
+                        }
                     }
                 }
 
@@ -291,6 +308,60 @@ fun TopNavigationRow(onShowPhone: () -> Unit, phoneIP : String, fileSize : Int, 
                 }
             )
         }
+    }
+
+
+}
+
+@Preview
+@Composable
+fun changeList(modifier: Modifier = Modifier) {
+
+    var isList by remember { mutableStateOf(true) }
+
+
+
+    Row(
+        modifier = Modifier
+            .then(modifier)
+            .background(Color(30, 30, 30, 255), RoundedCornerShape(8.dp))
+    ) {
+        Icon(imageVector =  Icons.Default.Audiotrack, tint = Color.White, contentDescription = null, modifier = Modifier.padding(8.dp))
+        Icon(imageVector =  Icons.Default.Preview, tint = Color.White, contentDescription = null, modifier = Modifier.padding(8.dp))
+    }
+}
+
+@Composable
+fun ItemListPicture(thumbnail: Thumbnail,isSelected : MutableState<Boolean> = mutableStateOf(false), onClick: () -> Unit = {}) {
+
+    val unbounded = FontFamily(Font(Res.font.unbounded))
+    val size = if(isSelected.value) 1.2f else 1f
+
+    val interactionSource = remember { MutableInteractionSource() }
+    val isHovered by interactionSource.collectIsHoveredAsState()
+
+    val backgroundColor = when {
+        isSelected.value -> Color(18, 18, 18, 255).lighten(0.08f).copy(alpha = 0.5f)
+        isHovered -> Color(18, 18, 18, 255).lighten(0.05f)
+        else -> Color(0, 0, 0, 0)
+    }
+
+    if(thumbnail.thumbnail != null) {
+        Image(bitmap = thumbnail.thumbnail.toImageBitmap(), contentDescription = null, contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .aspectRatio(size)
+                .clickable { onClick() }
+                .clip(RoundedCornerShape(4.dp))
+                .background(backgroundColor)
+        )
+    } else {
+        Text(
+            thumbnail.path.substringAfterLast(
+                "/"
+            ), fontSize = 12.sp, color = Color.White,
+            fontFamily = unbounded,
+            modifier = Modifier.clickable { onClick() }
+        )
     }
 
 

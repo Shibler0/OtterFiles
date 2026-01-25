@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 data class FileList(val files : String, var selectedFiles : MutableState<Boolean> = mutableStateOf(false))
-data class Thumbnail(val path : String, val thumbnail : ByteArray?) {
+data class Thumbnail(val path : String, var selectedFiles : MutableState<Boolean> = mutableStateOf(false), val thumbnail : ByteArray?) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
