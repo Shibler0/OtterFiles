@@ -377,13 +377,22 @@ fun ItemListPicture(thumbnail: Thumbnail,isSelected : MutableState<Boolean> = mu
         }
 
     } else {
-        Text(
-            thumbnail.path.substringAfterLast(
-                "/"
-            ), fontSize = 12.sp, color = Color.White,
-            fontFamily = unbounded,
-            modifier = Modifier.clickable { onClick() }
-        )
+        Box(
+            modifier = Modifier
+                .size(100.dp)
+                .background(Color.Black),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                thumbnail.path.substringAfterLast(
+                    "/"
+                ), fontSize = 12.sp, color = Color.White,
+                fontFamily = unbounded,
+                modifier = Modifier.clickable { onClick() }
+            )
+        }
+
+
     }
 }
 
