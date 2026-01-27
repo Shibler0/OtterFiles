@@ -1,6 +1,8 @@
 package com.shibler.transferfiles
 
+import android.content.Context
 import android.content.Intent
+import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -12,30 +14,23 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,12 +44,12 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.Font
 import transferfiles.composeapp.generated.resources.Res
 import transferfiles.composeapp.generated.resources.unbounded
-import java.io.File
+import android.net.ConnectivityManager
+import androidx.compose.ui.zIndex
+import com.shibler.transferfiles.domain.isConnectedToWifi
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -92,6 +87,9 @@ fun AndroidAppContent(paddingValues: PaddingValues, vm : AndroidVM) {
     val isSearching by vm.isSearching.collectAsStateWithLifecycle()
     val compressedImages by vm.compressedImages.collectAsStateWithLifecycle()
 
+    val context = LocalContext.current
+
+
 
     Box(
         modifier = Modifier
@@ -100,6 +98,18 @@ fun AndroidAppContent(paddingValues: PaddingValues, vm : AndroidVM) {
             .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+
+        if(!isConnectedToWifi(context)) {
+            Box(
+                modifier = Modifier
+                    .zIndex(2f)
+                    .fillMaxSize()
+                    .background(Color(18, 18, 18, 255)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Connectez-vous à un réseau WiFi", color = Color.White, fontSize = 16.sp, fontFamily = unbounded)
+            }
+        }
 
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 100.dp),
