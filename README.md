@@ -1,9 +1,25 @@
+# OtterFiles
+
+## Introduction
+
 OtterFiles is both an android app and desktop app that lets you transfer files locally from your android phone to your PC.
-Your phone is used as a server and automatically connect to the desktop app where you can select the files you want to retrieve from your the desktop app.
-
-
+From the desktop app choose which files you want to download
 
 ## Preview
+
+![DesktopPreview](screenshots/Capture%20d’écran%202026-01-27%20111538.png)
+
+
+## Technologies
+
+- [Kotlin](https://kotlinlang.org/)
+- [Compose]()
+- ServerSocket
+
+
+
+
+
 
 ### Build and Run Android Application
 
