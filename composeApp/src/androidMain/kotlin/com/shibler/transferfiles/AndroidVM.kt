@@ -1,7 +1,9 @@
 package com.shibler.transferfiles
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.shibler.transferfiles.domain.NetworkMonitor
 import com.shibler.transferfiles.domain.Picture
 import com.shibler.transferfiles.domain.ThumbnailGenerator
 import com.shibler.transferfiles.domain.UDPBroadcaster
@@ -13,7 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class AndroidVM(): ViewModel()  {
+class AndroidVM(context: Context): ViewModel()  {
     val server = AndroidFileServer(this)
 
     private val _serverIP = MutableStateFlow("Ip du serveur...")
@@ -31,8 +33,13 @@ class AndroidVM(): ViewModel()  {
     private val _compressedImages = MutableStateFlow<List<Picture>>(emptyList())
     val compressedImages = _compressedImages.asStateFlow()
 
+    private val networkMonitor = NetworkMonitor(context)
+
+    private val _isWifiEnabled = MutableStateFlow(false)
+    val isWifiEnabled = _isWifiEnabled.asStateFlow()
 
     init {
+        observeWifiStatus()
         startServer()
         getServerIP()
         _fileList.value = getAllFiles()
@@ -84,6 +91,20 @@ class AndroidVM(): ViewModel()  {
             }
         }
 
+    }
+
+    private fun observeWifiStatus() {
+        viewModelScope.launch {
+            networkMonitor.isWifiConnected.collect { isConnected ->
+                _isWifiEnabled.value = isConnected
+
+                if (isConnected) {
+                    println("Wifi is back")
+                } else {
+                    println("Wifi is down")
+                }
+            }
+        }
     }
 
 

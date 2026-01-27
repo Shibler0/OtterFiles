@@ -29,13 +29,14 @@ class AndroidFileServer(private val vm: AndroidVM) {
 
                     val command = input.readUTF()
 
-                    vm.updateStatus("Commande recue: $command")
 
                     if (command == "GET_LIST") {
 
                         val files = vm.fileList.value
                         output.writeInt(files.size)
                         files.forEach { output.writeUTF(it) }
+
+                        vm.updateStatus("List sent")
                     }
 
                     if (command.startsWith("GET_FILE")) {
@@ -53,6 +54,7 @@ class AndroidFileServer(private val vm: AndroidVM) {
                                 }
                             }
                             output.flush()
+                            vm.updateStatus("Files sent")
                         } else {
                             output.writeLong(0L)
                         }
@@ -75,6 +77,7 @@ class AndroidFileServer(private val vm: AndroidVM) {
                             }
 
                             output.writeUTF(it.path)
+                            vm.updateStatus("Thumbnail sent")
                         }
                         output.flush()
                     }

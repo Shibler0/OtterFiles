@@ -1,8 +1,6 @@
 package com.shibler.transferfiles
 
-import android.content.Context
 import android.content.Intent
-import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -41,22 +39,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import org.jetbrains.compose.resources.Font
 import transferfiles.composeapp.generated.resources.Res
 import transferfiles.composeapp.generated.resources.unbounded
-import android.net.ConnectivityManager
-import androidx.compose.ui.zIndex
-import com.shibler.transferfiles.domain.isConnectedToWifi
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        val vm = AndroidVM()
+        val vm = AndroidVM(this)
 
         setContent {
 
@@ -88,6 +84,8 @@ fun AndroidAppContent(paddingValues: PaddingValues, vm : AndroidVM) {
     val compressedImages by vm.compressedImages.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
+    val hasWifi = vm.isWifiEnabled.collectAsState().value
+
 
 
 
@@ -99,7 +97,7 @@ fun AndroidAppContent(paddingValues: PaddingValues, vm : AndroidVM) {
         contentAlignment = Alignment.Center
     ) {
 
-        if(!isConnectedToWifi(context)) {
+        if(!hasWifi) {
             Box(
                 modifier = Modifier
                     .zIndex(2f)
