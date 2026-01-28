@@ -12,11 +12,21 @@ Remotely select files from the desktop app that you want to download.
 
 ## Installation Guide
 
-1. Clone repo on Android studio <br>
-2. Launch the mobile app into your android phone <br>
-2. Create new configuration with Gradle and put this on run ```shell jvmRun -DmainClass=com.shibler.transferfiles.MainKt --quiet ``` <br>
-3. Launch the desktop app <br>
-4. Clic on the top left button in the desktop app to get the list of all your files <br>
+### Prerequisites
+- Android Studio
+- Phone with Android 11 or more
+- wifi connection
+
+### Steps
+
+1. Clone repo in Android studio <br>
+2. Run the **mobile app** on your Android phone. <br>
+3. Create a new **Gradle run configuration** and use the following command:
+   ```bash
+   jvmRun -DmainClass=com.shibler.transferfiles.MainKt --quiet
+   ```
+4. Launch the desktop application.<br>
+5. Click the top-left button in the desktop app to display the list of files.
 
 
 ## Limitations
