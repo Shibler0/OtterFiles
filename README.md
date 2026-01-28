@@ -8,6 +8,7 @@ Remotely select files from the desktop app that you want to download.
 ## Preview
 
 ![DesktopPreview](screenshots/Capture%20d’écran%202026-01-27%20111538.png)
+![PhonePreview](screenshots/Screenshot_20260128_075724_OtterFiles.jpg)
 
 ## Installation Guide
 
@@ -29,36 +30,6 @@ Speed transfer depends on the network speed and devices limitations.
 - [Compose]()
 - ServerSocket
 
-
-
-
-
-
-### Build and Run Android Application
-
-To build and run the development version of the Android app, use the run configuration from the run widget
-in your IDE’s toolbar or build it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:assembleDebug
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:assembleDebug
-  ```
-
-### Build and Run Desktop (JVM) Application
-
-To build and run the development version of the desktop app, use the run configuration from the run widget
-in your IDE’s toolbar or run it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:run
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:run
-  ```
 
 ---
 
