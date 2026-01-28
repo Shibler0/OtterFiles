@@ -8,7 +8,7 @@ Remotely select files from the desktop app that you want to download.
 ## Preview
 
 ![DesktopPreview](screenshots/Capture%20d’écran%202026-01-27%20111538.png)
-![PhonePreview](screenshots/Screenshot_20260128_075724_OtterFiles.jpg)
+<img src="screenshots/Screenshot_20260128_075724_OtterFiles.jpg" height="500">
 
 ## Installation Guide
 
