@@ -80,10 +80,17 @@ class SocketService() : Service() {
             .build()
     }
 
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        SocketManager.tcpServer?.stop()
+        stopSelf()
+        super.onTaskRemoved(rootIntent)
+    }
+
     override fun onDestroy() {
         wakeLock?.release()
         wifiLock?.release()
         serverJob?.cancel()
+        SocketManager.tcpServer?.stop()
         super.onDestroy()
     }
 }

@@ -14,10 +14,12 @@ class TCPServer(val filesFlow: StateFlow<List<String>>, val imagesFlow: StateFlo
     private var isRunning = false
     private val BUFFER_SIZE = 64 * 1024
 
+    val serverSocket = ServerSocket(9999)
+
     fun start(port: Int = 9999) {
         if (isRunning) return
         isRunning = true
-        val serverSocket = ServerSocket(port)
+        //val serverSocket = ServerSocket(port)
 
         while (isRunning) {
             try {
@@ -79,5 +81,6 @@ class TCPServer(val filesFlow: StateFlow<List<String>>, val imagesFlow: StateFlo
 
     fun stop() {
         isRunning = false
+        serverSocket.close()
     }
 }
