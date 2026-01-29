@@ -1,8 +1,11 @@
 package com.shibler.transferfiles
 
 import android.content.Context
+import android.content.Intent
+import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.shibler.transferfiles.domain.TCPServer
 import com.shibler.transferfiles.domain.NetworkMonitor
 import com.shibler.transferfiles.domain.Picture
 import com.shibler.transferfiles.domain.ThumbnailGenerator
@@ -15,8 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class AndroidVM(context: Context): ViewModel()  {
-    val server = AndroidFileServer(this)
+class AndroidVM(val context: Context): ViewModel()  {
 
     private val _serverIP = MutableStateFlow("Ip du serveur...")
     val serverIP = _serverIP.asStateFlow()
@@ -38,9 +40,13 @@ class AndroidVM(context: Context): ViewModel()  {
     private val _isWifiEnabled = MutableStateFlow(false)
     val isWifiEnabled = _isWifiEnabled.asStateFlow()
 
+
     init {
         observeWifiStatus()
-        startServer()
+        SocketManager.tcpServer = TCPServer(_fileList, _compressedImages) {
+            _serverStatus.value = it
+        }
+        startSocketService()
         getServerIP()
         _fileList.value = getAllFiles()
         loadThumbnail()
@@ -65,16 +71,32 @@ class AndroidVM(context: Context): ViewModel()  {
 
     }
 
-    fun startServer() {
-        viewModelScope.launch(Dispatchers.IO) {
-            launch {
-                server.start()
-            }
-            delay(500)
-            sendBroadcastHandshake()
+    fun startSocketService() {
+        val intent = Intent(context, SocketService::class.java).apply {
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent)
+        } else {
+            context.startService(intent)
         }
 
+        viewModelScope.launch(Dispatchers.IO) {
+            delay(1000)
+            sendBroadcastHandshake()
+        }
     }
+
+    /*fun startServer() {
+        viewModelScope.launch(Dispatchers.IO) {
+            server.start()
+        }
+    }*/
+
+    /*override fun onCleared() {
+        super.onCleared()
+        val intent = Intent(context, SocketService::class.java)
+        context.stopService(intent)
+    }*/
 
     fun sendBroadcastHandshake() {
 

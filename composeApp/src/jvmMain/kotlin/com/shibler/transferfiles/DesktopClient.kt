@@ -1,5 +1,7 @@
 package com.shibler.transferfiles
 
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.io.DataInputStream
@@ -19,8 +21,9 @@ class DesktopClient(val ip : String , val port: Int = 9999) {
                 println("ip : $ip")
                 socket.connect(InetSocketAddress(ip, port), 3000)
 
-                val output = DataOutputStream(socket.getOutputStream())
-                val input = DataInputStream(socket.getInputStream())
+                val output = DataOutputStream(BufferedOutputStream(socket.getOutputStream(), BUFFER_SIZE))
+                val input = DataInputStream(BufferedInputStream(socket.getInputStream(), BUFFER_SIZE))
+                //val input = DataInputStream(socket.getInputStream())
 
                 output.writeUTF(command)
                 output.flush()
@@ -31,7 +34,6 @@ class DesktopClient(val ip : String , val port: Int = 9999) {
             }
         } catch (e: Exception) {
             println("❌ ERREUR : ${e.message}")
-            // On retourne l'échec
             Result.failure(e)
         }
     }

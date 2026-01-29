@@ -1,0 +1,83 @@
+package com.shibler.transferfiles.domain
+
+import kotlinx.coroutines.flow.StateFlow
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
+import java.io.DataInputStream
+import java.io.DataOutputStream
+import java.io.File
+import java.io.FileInputStream
+import java.net.ServerSocket
+
+class TCPServer(val filesFlow: StateFlow<List<String>>, val imagesFlow: StateFlow<List<Picture>>, val message : (String) -> Unit) {
+
+    private var isRunning = false
+    private val BUFFER_SIZE = 64 * 1024
+
+    fun start(port: Int = 9999) {
+        if (isRunning) return
+        isRunning = true
+        val serverSocket = ServerSocket(port)
+
+        while (isRunning) {
+            try {
+                val socket = serverSocket.accept()
+
+                message("Client connecté : ${socket.inetAddress.hostAddress}")
+
+                val input = DataInputStream(BufferedInputStream(socket.getInputStream(), BUFFER_SIZE))
+                val output = DataOutputStream(BufferedOutputStream(socket.getOutputStream(), BUFFER_SIZE))
+                //val output = DataOutputStream(socket.getOutputStream())
+
+                val command = input.readUTF()
+
+                if (command == "GET_LIST") {
+                    message("GET_LIST")
+                    val files = filesFlow.value
+                    output.writeInt(files.size)
+                    files.forEach { output.writeUTF(it) }
+                    output.flush()
+                }
+
+                if (command.startsWith("GET_FILE")) {
+                    message("GET_FILE")
+                    val path = command.substringAfter(";", "")
+                    val fileObj = File(path)
+                    if (fileObj.exists() && fileObj.isFile) {
+                        output.writeLong(fileObj.length())
+                        FileInputStream(fileObj).buffered(BUFFER_SIZE).use { fileInput ->
+                            val buffer = ByteArray(BUFFER_SIZE)
+                            var bytesRead: Int
+                            while (fileInput.read(buffer).also { bytesRead = it } != -1) {
+                                output.write(buffer, 0, bytesRead)
+                            }
+                        }
+                        output.flush()
+                    } else {
+                        output.writeLong(0L)
+                    }
+                }
+
+                if (command.startsWith("GET_THUMBNAIL")) {
+                    message("GET_THUMBNAIL")
+                    val thumbnails = imagesFlow.value
+                    output.writeInt(thumbnails.size)
+                    thumbnails.forEach {
+                        val bytes = it.thumbnail
+                        output.writeInt(bytes?.size ?: 0)
+                        if(bytes != null) { output.write(bytes) }
+                        output.writeUTF(it.path)
+                    }
+                    output.flush()
+                }
+                socket.close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun stop() {
+        isRunning = false
+    }
+}
