@@ -11,12 +11,12 @@ fun getLocalIpAddress(): String {
             val addrs = intf.inetAddresses
             for (addr in addrs) {
                 if (!addr.isLoopbackAddress && addr is Inet4Address) {
-                    return addr.hostAddress ?: "Inconnue"
+                    return addr.hostAddress ?: "Unknow"
                 }
             }
         }
     } catch (ex: Exception) {
         ex.printStackTrace()
     }
-    return "IP non trouvée"
+    return "IP not found"
 }

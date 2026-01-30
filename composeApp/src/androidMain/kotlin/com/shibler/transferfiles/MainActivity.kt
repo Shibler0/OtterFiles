@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -105,7 +106,7 @@ fun AndroidAppContent(paddingValues: PaddingValues, vm : AndroidVM) {
                     .background(Color(18, 18, 18, 255)),
                 contentAlignment = Alignment.Center
             ) {
-                Text("Connectez-vous à un réseau WiFi", color = Color.White, fontSize = 16.sp, fontFamily = unbounded)
+                Text(stringResource(R.string.Offline), color = Color.White, fontSize = 16.sp, fontFamily = unbounded)
             }
         }
 

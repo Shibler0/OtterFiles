@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">OtterFiles</string>
+
+    <string name="connexion_loading">En attente d une connexion</string>
+    <string name="Offline">Connectez vous a un wifi</string>
+    <string name="online">Connecté</string>
+    <string name="server_ip">Ip serveur…</string>
+    <string name="client_info">Client connecté :</string>
+    <string name="get_list">Liste demandé</string>
+    <string name="get_file">Fichiers demandé</string>
+    <string name="get_thumbnail">Listz miniature demandé</string>
+
 </resources>

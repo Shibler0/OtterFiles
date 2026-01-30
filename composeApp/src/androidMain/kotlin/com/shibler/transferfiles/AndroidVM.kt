@@ -3,6 +3,7 @@ package com.shibler.transferfiles
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shibler.transferfiles.domain.TCPServer
@@ -20,7 +21,7 @@ import kotlinx.coroutines.launch
 
 class AndroidVM(val context: Context): ViewModel()  {
 
-    private val _serverIP = MutableStateFlow("Ip du serveur...")
+    private val _serverIP = MutableStateFlow(context.getString(R.string.server_ip))
     val serverIP = _serverIP.asStateFlow()
 
     private val _fileList = MutableStateFlow<List<String>>(emptyList())
@@ -43,7 +44,7 @@ class AndroidVM(val context: Context): ViewModel()  {
 
     init {
         observeWifiStatus()
-        SocketManager.tcpServer = TCPServer(_fileList, _compressedImages) {
+        SocketManager.tcpServer = TCPServer(context,_fileList, _compressedImages) {
             _serverStatus.value = it
         }
         startSocketService()
@@ -103,11 +104,11 @@ class AndroidVM(val context: Context): ViewModel()  {
         if(isSearching.value) return
         isSearching.value = true
 
-        _serverStatus.value = "En attente d'une connexion..."
+        _serverStatus.value = context.getString(R.string.connexion_loading)
 
         viewModelScope.launch(Dispatchers.IO) {
             UDPBroadcaster().sendBroadcastAndListen { ip ->
-                _serverStatus.value = "Connecté"
+                _serverStatus.value = context.getString(R.string.online)
                 isSearching.value = false
                 println("packet recu: $ip")
             }
