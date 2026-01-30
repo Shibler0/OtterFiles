@@ -44,7 +44,7 @@ class AndroidVM(val context: Context): ViewModel()  {
 
     init {
         observeWifiStatus()
-        SocketManager.tcpServer = TCPServer(context,_fileList, _compressedImages) {
+        SocketManager.tcpServer = TCPServer(_fileList, _compressedImages) {
             _serverStatus.value = it
         }
         startSocketService()

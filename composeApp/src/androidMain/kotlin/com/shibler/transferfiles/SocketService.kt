@@ -91,6 +91,7 @@ class SocketService() : Service() {
         wifiLock?.release()
         serverJob?.cancel()
         SocketManager.tcpServer?.stop()
+        SocketManager.tcpServer = null
         super.onDestroy()
     }
 }

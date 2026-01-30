@@ -11,7 +11,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.net.ServerSocket
 
-class TCPServer(val context: Context, val filesFlow: StateFlow<List<String>>, val imagesFlow: StateFlow<List<Picture>>, val message : (String) -> Unit) {
+class TCPServer(val filesFlow: StateFlow<List<String>>, val imagesFlow: StateFlow<List<Picture>>, val message : (String) -> Unit) {
 
     private var isRunning = false
     private val BUFFER_SIZE = 64 * 1024
@@ -26,7 +26,7 @@ class TCPServer(val context: Context, val filesFlow: StateFlow<List<String>>, va
             try {
                 val socket = serverSocket.accept()
 
-                message("${context.getString(R.string.client_info)} ${socket.inetAddress.hostAddress}")
+                //message("${context.getString(R.string.client_info)} ${socket.inetAddress.hostAddress}")
 
                 val input = DataInputStream(BufferedInputStream(socket.getInputStream(), BUFFER_SIZE))
                 val output = DataOutputStream(BufferedOutputStream(socket.getOutputStream(), BUFFER_SIZE))
@@ -34,7 +34,7 @@ class TCPServer(val context: Context, val filesFlow: StateFlow<List<String>>, va
                 val command = input.readUTF()
 
                 if (command == "GET_LIST") {
-                    message(context.getString(R.string.get_list))
+                    //message(context.getString(R.string.get_list))
                     val files = filesFlow.value
                     output.writeInt(files.size)
                     files.forEach { output.writeUTF(it) }
@@ -42,7 +42,7 @@ class TCPServer(val context: Context, val filesFlow: StateFlow<List<String>>, va
                 }
 
                 if (command.startsWith("GET_FILE")) {
-                    message(context.getString(R.string.get_file))
+                    //message(context.getString(R.string.get_file))
                     val path = command.substringAfter(";", "")
                     val fileObj = File(path)
                     if (fileObj.exists() && fileObj.isFile) {
@@ -61,7 +61,7 @@ class TCPServer(val context: Context, val filesFlow: StateFlow<List<String>>, va
                 }
 
                 if (command.startsWith("GET_THUMBNAIL")) {
-                    message(context.getString(R.string.get_thumbnail))
+                    //message(context.getString(R.string.get_thumbnail))
                     val thumbnails = imagesFlow.value
                     output.writeInt(thumbnails.size)
                     thumbnails.forEach {
