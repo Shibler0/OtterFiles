@@ -266,18 +266,31 @@ fun TopNavigationRow(onShowPhone: () -> Unit, phoneIP : String, fileSize : Int, 
         Row(Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             Button(
                 onClick = onShowPhone,
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(30, 30, 30, 255)),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(18, 18, 18, 255).lighten(0.08f)),
                 shape = RoundedCornerShape(15.dp),
                 modifier = Modifier
                     .clip(RoundedCornerShape(15.dp))
             ) {
                 Icon(imageVector = Icons.Default.PhoneAndroid, tint = Color.White , contentDescription = null)
                 Spacer(Modifier.width(4.dp))
-                Text("Mon Téléphone ($phoneIP)", fontFamily = unbounded, fontWeight = FontWeight.Bold, color = Color.White)
+                Text("My phone ($phoneIP)", fontFamily = unbounded, fontWeight = FontWeight.Bold, color = Color.White)
             }
 
             Icon(imageVector =  Icons.AutoMirrored.Filled.InsertDriveFile, tint = Color(0xFFFFC107),contentDescription = null)
             Text("${fileSize}", fontFamily = unbounded, fontWeight = FontWeight.Bold, color = Color.White)
+
+            /*Text("delete mode :", fontFamily = unbounded, fontWeight = FontWeight.Bold, color = Color.White)
+
+            Switch(
+                checked = vm.turnOnDeleteMode.collectAsState().value,
+                onCheckedChange = { vm.setTurnOnDeleteMode() },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = Color(0xFFFAFAFA),
+                    checkedTrackColor = Color(0xFF1E88E5), // bleu profond
+                    uncheckedThumbColor = Color(0xFF757575),
+                    uncheckedTrackColor = Color(0xFF2C2C2C)
+                )
+            )*/
         }
 
         Row(
@@ -318,7 +331,7 @@ fun TopNavigationRow(onShowPhone: () -> Unit, phoneIP : String, fileSize : Int, 
                         Box {
                             if (query.isEmpty()) {
                                 Text(
-                                    text = "Rechercher...",
+                                    text = "Search...",
                                     color = Color.White.copy(alpha = 0.5f),
                                     fontWeight = FontWeight.Medium
                                 )

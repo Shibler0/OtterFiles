@@ -56,6 +56,9 @@ class MainVM : ViewModel() {
     private val _thumbnails = MutableStateFlow<List<Thumbnail>>(emptyList())
     val thumbnails = _thumbnails.asStateFlow()
 
+    private val _turnOnDeleteMode = MutableStateFlow(false)
+    val turnOnDeleteMode = _turnOnDeleteMode.asStateFlow()
+
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -67,6 +70,11 @@ class MainVM : ViewModel() {
 
         }
     }
+
+    fun setTurnOnDeleteMode() {
+        _turnOnDeleteMode.value = !turnOnDeleteMode.value
+    }
+
 
     fun setRemoteFiles(newFiles : List<String>) {
         _remoteFiles.value = newFiles.map { FileList(it) }
