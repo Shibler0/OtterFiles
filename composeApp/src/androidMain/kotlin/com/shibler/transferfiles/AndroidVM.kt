@@ -1,9 +1,11 @@
 package com.shibler.transferfiles
 
+import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shibler.transferfiles.domain.TCPServer
@@ -19,9 +21,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class AndroidVM(val context: Context): ViewModel()  {
+class AndroidVM(application: Application): AndroidViewModel(application)  {
 
-    private val _serverIP = MutableStateFlow(context.getString(R.string.server_ip))
+    private val _serverIP = MutableStateFlow(getApplication<Application>().getString(R.string.server_ip))
     val serverIP = _serverIP.asStateFlow()
 
     private val _fileList = MutableStateFlow<List<String>>(emptyList())
@@ -36,7 +38,7 @@ class AndroidVM(val context: Context): ViewModel()  {
     private val _compressedImages = MutableStateFlow<List<Picture>>(emptyList())
     val compressedImages = _compressedImages.asStateFlow()
 
-    private val networkMonitor = NetworkMonitor(context)
+    private val networkMonitor = NetworkMonitor(getApplication<Application>())
 
     private val _isWifiEnabled = MutableStateFlow(false)
     val isWifiEnabled = _isWifiEnabled.asStateFlow()
@@ -73,12 +75,12 @@ class AndroidVM(val context: Context): ViewModel()  {
     }
 
     fun startSocketService() {
-        val intent = Intent(context, SocketService::class.java).apply {
+        val intent = Intent(getApplication<Application>(), SocketService::class.java).apply {
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(intent)
+            getApplication<Application>().startForegroundService(intent)
         } else {
-            context.startService(intent)
+            getApplication<Application>().startService(intent)
         }
 
         viewModelScope.launch(Dispatchers.IO) {
@@ -104,11 +106,11 @@ class AndroidVM(val context: Context): ViewModel()  {
         if(isSearching.value) return
         isSearching.value = true
 
-        _serverStatus.value = context.getString(R.string.connexion_loading)
+        _serverStatus.value = getApplication<Application>().getString(R.string.connexion_loading)
 
         viewModelScope.launch(Dispatchers.IO) {
             UDPBroadcaster().sendBroadcastAndListen { ip ->
-                _serverStatus.value = context.getString(R.string.online)
+                _serverStatus.value = getApplication<Application>().getString(R.string.online)
                 isSearching.value = false
                 println("packet recu: $ip")
             }
