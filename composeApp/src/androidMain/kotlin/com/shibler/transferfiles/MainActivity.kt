@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        val vm = AndroidVM(this)
+        val vm = AndroidVM(application)
 
         setContent {
 
@@ -77,16 +77,11 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AndroidAppContent(paddingValues: PaddingValues, vm : AndroidVM) {
 
-    val fileList = vm.fileList.collectAsState().value
-    val serverIP = vm.serverIP.collectAsState().value
     val unbounded = FontFamily(Font(Res.font.unbounded))
     val serverStatus by vm.serverStatus.collectAsStateWithLifecycle()
     val isSearching by vm.isSearching.collectAsStateWithLifecycle()
     val compressedImages by vm.compressedImages.collectAsStateWithLifecycle()
-
-    val context = LocalContext.current
     val hasWifi = vm.isWifiEnabled.collectAsState().value
-
 
 
 
@@ -146,46 +141,7 @@ fun AndroidAppContent(paddingValues: PaddingValues, vm : AndroidVM) {
             }
         }
 
-
-            /*Text("Fichiers détectés : ${fileList.size}", style = MaterialTheme.typography.headlineSmall)
-
-            LazyColumn(Modifier.weight(1f)) {
-                items(fileList) { fileName ->
-                    Text(fileName, fontSize = 12.sp, modifier = Modifier.padding(4.dp))
-                }
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Statut serveur :", color = Color.Black, fontSize = 14.sp)
-                Text(serverStatus, color = Color.Black, fontSize = 14.sp)
-            }
-
-            SendBroadcastBtn(
-                onClick = {
-                    vm.sendBroadcastHandshake()
-                }
-            ) {
-                Spacer(modifier = Modifier.weight(1f))
-
-                Text("En attente d'une connexion", color = Color.White, fontSize = 16.sp, fontFamily = unbounded, modifier = Modifier.weight(2f).align(Alignment.CenterHorizontally))
-                if(isSearching) {
-                    CircularProgressIndicator(modifier = Modifier.padding(end = 10.dp).size(30.dp), color = Color.White)
-                }
-
-            }
-
-            Text(serverIP, fontSize = 12.sp, modifier = Modifier.align(Alignment.End))
-
-            Spacer(modifier = Modifier.height(30.dp))*/
-
-
     }
-
 
 }
 

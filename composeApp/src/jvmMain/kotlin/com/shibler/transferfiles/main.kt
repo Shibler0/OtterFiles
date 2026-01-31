@@ -47,11 +47,16 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.PlayCircle
-import androidx.compose.material.icons.filled.Preview
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.ViewList
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,7 +68,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -72,11 +76,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import com.shibler.transferfiles.domain.Language
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.Font
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.jetbrains.compose.resources.decodeToImageBitmap
 import transferfiles.composeapp.generated.resources.Res
 import transferfiles.composeapp.generated.resources.unbounded
 import java.io.ByteArrayInputStream
@@ -97,7 +101,7 @@ fun main() = application {
 fun FileExplorerContent(vm : MainVM) {
 
     val listState = rememberLazyListState()
-    val client = DesktopClient(vm.serverSocketAddress.value)
+    val client = TCPClient(vm.serverSocketAddress.value)
 
     val remoteFiles by vm.remoteFiles.collectAsState()
     val phoneIP by vm.serverSocketAddress.collectAsState()
@@ -273,11 +277,11 @@ fun TopNavigationRow(onShowPhone: () -> Unit, phoneIP : String, fileSize : Int, 
             ) {
                 Icon(imageVector = Icons.Default.PhoneAndroid, tint = Color.White , contentDescription = null)
                 Spacer(Modifier.width(4.dp))
-                Text("My phone ($phoneIP)", fontFamily = unbounded, fontWeight = FontWeight.Bold, color = Color.White)
+                Text("${Language.getString("phone")} ($phoneIP)", fontFamily = unbounded, fontWeight = FontWeight.Bold, color = Color.White)
             }
 
             Icon(imageVector =  Icons.AutoMirrored.Filled.InsertDriveFile, tint = Color(0xFFFFC107),contentDescription = null)
-            Text("${fileSize}", fontFamily = unbounded, fontWeight = FontWeight.Bold, color = Color.White)
+            Text("$fileSize", fontFamily = unbounded, fontWeight = FontWeight.Bold, color = Color.White)
 
             /*Text("delete mode :", fontFamily = unbounded, fontWeight = FontWeight.Bold, color = Color.White)
 
@@ -321,7 +325,7 @@ fun TopNavigationRow(onShowPhone: () -> Unit, phoneIP : String, fileSize : Int, 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.Search,
-                            contentDescription = "Recherche",
+                            contentDescription = Language.getString("search"),
                             tint = Color.White,
                             modifier = Modifier.size(20.dp)
                         )
@@ -331,7 +335,7 @@ fun TopNavigationRow(onShowPhone: () -> Unit, phoneIP : String, fileSize : Int, 
                         Box {
                             if (query.isEmpty()) {
                                 Text(
-                                    text = "Search...",
+                                    text = Language.getString("search"),
                                     color = Color.White.copy(alpha = 0.5f),
                                     fontWeight = FontWeight.Medium
                                 )
@@ -472,7 +476,7 @@ fun DownloadBtn(modifier: Modifier, progression : Float = 0f, fileNumber : Int, 
 
     val unbounded = FontFamily(Font(Res.font.unbounded))
 
-    val downloadtxt = if(progression == 0f) "Télécharger" else "${(progression * 100).toInt()}%"
+    val downloadtxt = if(progression == 0f) Language.getString("dwnld") else "${(progression * 100).toInt()}%"
 
     Row(
         modifier = Modifier
@@ -480,8 +484,7 @@ fun DownloadBtn(modifier: Modifier, progression : Float = 0f, fileNumber : Int, 
             .clip(RoundedCornerShape(20.dp))
             .fillMaxWidth(0.9f)
             .clickable{onClick()}
-            .border(2.dp, brush = Brush.linearGradient(listOf(Color(153, 51, 255, 255), Color(217, 51, 255, 255)
-            )), RoundedCornerShape(20.dp))
+            .border(2.dp, color = Color(0xFF1E88E5), RoundedCornerShape(20.dp))
             .background(Color(18, 18, 18, 255), RoundedCornerShape(20.dp))
             .drawWithCache {
                 val progress = progression
@@ -489,8 +492,8 @@ fun DownloadBtn(modifier: Modifier, progression : Float = 0f, fileNumber : Int, 
 
                 val gradientBrush = Brush.linearGradient(
                     colors = listOf(
-                        Color(153, 51, 255, 255),
-                        Color(217, 51, 255, 255)
+                        Color(0xFF1E88E5),
+                        Color(0xFF1E88E5)
                     ),
                     start = Offset.Zero,
                     end = Offset(progressWidth, 0f)
@@ -524,5 +527,5 @@ fun Color.lighten(factor: Float): Color {
 }
 
 fun ByteArray.toImageBitmap(): ImageBitmap =
-    loadImageBitmap(ByteArrayInputStream(this))
+    ByteArrayInputStream(this).readAllBytes().decodeToImageBitmap()
 

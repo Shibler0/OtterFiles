@@ -1,5 +1,7 @@
 package com.shibler.transferfiles
 
+import com.shibler.transferfiles.domain.Language
+import com.shibler.transferfiles.domain.showNotification
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.net.InetSocketAddress
@@ -9,7 +11,7 @@ import java.io.DataOutputStream
 import java.io.File
 import java.io.FileOutputStream
 
-class DesktopClient(val ip : String , val port: Int = 9999) {
+class TCPClient(val ip : String, val port: Int = 9999) {
 
     private val BUFFER_SIZE = 64 * 1024
 
@@ -23,7 +25,6 @@ class DesktopClient(val ip : String , val port: Int = 9999) {
 
                 val output = DataOutputStream(BufferedOutputStream(socket.getOutputStream(), BUFFER_SIZE))
                 val input = DataInputStream(BufferedInputStream(socket.getInputStream(), BUFFER_SIZE))
-                //val input = DataInputStream(socket.getInputStream())
 
                 output.writeUTF(command)
                 output.flush()
@@ -110,6 +111,7 @@ class DesktopClient(val ip : String , val port: Int = 9999) {
                     vm.setProgressionState(fileSize, totalBytesRead)
                 }
                 vm.resetProgressionState()
+                showNotification(Language.getString("dwnldOver"), Language.getString("dwnldOver") + fileName + Language.getString("success"))
             }
         }
 

@@ -1,7 +1,5 @@
 package com.shibler.transferfiles.domain
 
-import android.content.Context
-import com.shibler.transferfiles.R
 import kotlinx.coroutines.flow.StateFlow
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
@@ -27,6 +25,7 @@ class TCPServer(val filesFlow: StateFlow<List<String>>, val imagesFlow: StateFlo
                 val socket = serverSocket.accept()
 
                 //message("${context.getString(R.string.client_info)} ${socket.inetAddress.hostAddress}")
+                message("socket : ${socket.inetAddress.hostAddress}")
 
                 val input = DataInputStream(BufferedInputStream(socket.getInputStream(), BUFFER_SIZE))
                 val output = DataOutputStream(BufferedOutputStream(socket.getOutputStream(), BUFFER_SIZE))
@@ -34,7 +33,7 @@ class TCPServer(val filesFlow: StateFlow<List<String>>, val imagesFlow: StateFlo
                 val command = input.readUTF()
 
                 if (command == "GET_LIST") {
-                    //message(context.getString(R.string.get_list))
+                    message("GET_LIST")
                     val files = filesFlow.value
                     output.writeInt(files.size)
                     files.forEach { output.writeUTF(it) }
@@ -42,7 +41,7 @@ class TCPServer(val filesFlow: StateFlow<List<String>>, val imagesFlow: StateFlo
                 }
 
                 if (command.startsWith("GET_FILE")) {
-                    //message(context.getString(R.string.get_file))
+                    message("GET_FILE")
                     val path = command.substringAfter(";", "")
                     val fileObj = File(path)
                     if (fileObj.exists() && fileObj.isFile) {
@@ -61,7 +60,7 @@ class TCPServer(val filesFlow: StateFlow<List<String>>, val imagesFlow: StateFlo
                 }
 
                 if (command.startsWith("GET_THUMBNAIL")) {
-                    //message(context.getString(R.string.get_thumbnail))
+                    message("GET_THUMBNAIL")
                     val thumbnails = imagesFlow.value
                     output.writeInt(thumbnails.size)
                     thumbnails.forEach {

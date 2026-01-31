@@ -42,7 +42,7 @@ class MainVM : ViewModel() {
     private val _serverSocketAddress = MutableStateFlow("?")//192.0.0.2
     val serverSocketAddress = _serverSocketAddress.asStateFlow()
 
-    val desktopClient = DesktopClient(serverSocketAddress.value)
+    val TCPClient = TCPClient(serverSocketAddress.value)
 
     private val _isLoading = MutableStateFlow(true)
     val isLoading = _isLoading.asStateFlow()
@@ -66,7 +66,7 @@ class MainVM : ViewModel() {
                 setServerSocket(phoneIp)
                 _isLoading.value = false
             }
-            desktopClient
+            TCPClient
 
         }
     }

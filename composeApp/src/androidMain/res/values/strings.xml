@@ -8,6 +8,6 @@
     <string name="client_info">Client connecté :</string>
     <string name="get_list">Liste demandé</string>
     <string name="get_file">Fichiers demandé</string>
-    <string name="get_thumbnail">Listz miniature demandé</string>
+    <string name="get_thumbnail">Liste miniature demandé</string>
 
 </resources>

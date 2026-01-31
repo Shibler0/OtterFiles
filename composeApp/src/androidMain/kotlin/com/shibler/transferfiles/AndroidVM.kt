@@ -1,16 +1,13 @@
 package com.shibler.transferfiles
 
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.os.Build
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shibler.transferfiles.domain.TCPServer
 import com.shibler.transferfiles.domain.NetworkMonitor
 import com.shibler.transferfiles.domain.Picture
+import com.shibler.transferfiles.domain.TCPServer
 import com.shibler.transferfiles.domain.ThumbnailGenerator
 import com.shibler.transferfiles.domain.UDPBroadcaster
 import com.shibler.transferfiles.domain.getAllFiles
@@ -38,7 +35,7 @@ class AndroidVM(application: Application): AndroidViewModel(application)  {
     private val _compressedImages = MutableStateFlow<List<Picture>>(emptyList())
     val compressedImages = _compressedImages.asStateFlow()
 
-    private val networkMonitor = NetworkMonitor(getApplication<Application>())
+    private val networkMonitor = NetworkMonitor(getApplication())
 
     private val _isWifiEnabled = MutableStateFlow(false)
     val isWifiEnabled = _isWifiEnabled.asStateFlow()
@@ -46,12 +43,18 @@ class AndroidVM(application: Application): AndroidViewModel(application)  {
 
     init {
         observeWifiStatus()
-        SocketManager.tcpServer = TCPServer(_fileList, _compressedImages) {
-            _serverStatus.value = it
+        SocketManager.tcpServer = TCPServer(_fileList, _compressedImages) { message ->
+            when {
+                message == "GET_LIST" -> _serverStatus.value = getApplication<Application>().getString(R.string.get_list)
+                message == "GET_FILE" -> _serverStatus.value = getApplication<Application>().getString(R.string.get_file)
+                message == "GET_THUMBNAIL" -> _serverStatus.value = getApplication<Application>().getString(R.string.get_thumbnail)
+                message.contains("socket") -> _serverStatus.value = message.substringAfter(":")
+                else -> _serverStatus.value = message
+            }
         }
         startSocketService()
         getServerIP()
-        _fileList.value = getAllFiles()
+        retrieveFiles()
         loadThumbnail()
     }
 
@@ -67,6 +70,11 @@ class AndroidVM(application: Application): AndroidViewModel(application)  {
         }
     }
 
+    fun retrieveFiles() {
+        _fileList.value = getAllFiles()
+    }
+
+
     fun getServerIP() {
         viewModelScope.launch(Dispatchers.IO) {
             _serverIP.value = getLocalIpAddress()
@@ -75,7 +83,7 @@ class AndroidVM(application: Application): AndroidViewModel(application)  {
     }
 
     fun startSocketService() {
-        val intent = Intent(getApplication<Application>(), SocketService::class.java).apply {
+        val intent = Intent(getApplication(), SocketService::class.java).apply {
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             getApplication<Application>().startForegroundService(intent)
