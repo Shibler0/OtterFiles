@@ -79,7 +79,7 @@ class TCPClient(val ip : String, val port: Int = 9999) {
 
         val fileName = fileDirectory.substringAfterLast("/")
         val userHome = System.getProperty("user.home")
-        val dir = "mesfichiers"
+        val dir = Language.getString("dir")
         val saveDirectory = File(userHome, "Downloads/$dir")
         if(!saveDirectory.exists()) {
             saveDirectory.mkdir()
@@ -111,7 +111,11 @@ class TCPClient(val ip : String, val port: Int = 9999) {
                     vm.setProgressionState(fileSize, totalBytesRead)
                 }
                 vm.resetProgressionState()
-                showNotification(Language.getString("dwnldOver"), Language.getString("dwnldOver") + fileName + Language.getString("success"))
+
+                if(vm.selectedFiles.value.size == 1) {
+                    showNotification(Language.getString("dwnldOver"), Language.getString("success"))
+                }
+
             }
         }
 

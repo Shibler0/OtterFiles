@@ -210,8 +210,6 @@ fun FileExplorerContent(vm : MainVM) {
                 }
 
 
-
-
                 if(selectedFiles.isNotEmpty()) {
 
                         DownloadBtn(modifier = Modifier.align(Alignment.BottomCenter), progression = progression, fileNumber = selectedFiles.size){
@@ -233,7 +231,6 @@ fun FileExplorerContent(vm : MainVM) {
                             }
                         }
                 }
-
             }
 
             changeList(modifier = Modifier
