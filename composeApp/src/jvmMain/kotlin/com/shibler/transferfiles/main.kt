@@ -171,13 +171,12 @@ fun FileExplorerContent(vm : MainVM) {
                         items(filteredThumbnails) {
 
                             val fileName = it.path
+                            val isFileSelected = selectedFiles.contains(fileName)
 
-                            ItemListPicture(it, isSelected = it.selectedFiles) {
-                                if(selectedFiles.contains(fileName)) {
+                            ItemListPicture(it, isSelected = isFileSelected) {
+                                if(isFileSelected) {
                                     vm.removeSelectedFile(fileName)
-                                    it.selectedFiles.value = false
                                 } else {
-                                    it.selectedFiles.value = true
                                     vm.addSelectedFile(fileName)
                                     println(vm.selectedFiles.value)
                                 }
@@ -233,7 +232,7 @@ fun FileExplorerContent(vm : MainVM) {
                 }
             }
 
-            changeList(modifier = Modifier
+            SwitchDisplay(modifier = Modifier
                 .padding(16.dp)
                 .align(Alignment.TopEnd),
                 isList = mutableStateOf(isList),
@@ -267,7 +266,7 @@ fun TopNavigationRow(onShowPhone: () -> Unit, phoneIP : String, fileSize : Int, 
         Row(Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             Button(
                 onClick = onShowPhone,
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(18, 18, 18, 255).lighten(0.08f)),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(18, 18, 18, 255).lighten(0.09f)),
                 shape = RoundedCornerShape(15.dp),
                 modifier = Modifier
                     .clip(RoundedCornerShape(15.dp))
@@ -349,7 +348,7 @@ fun TopNavigationRow(onShowPhone: () -> Unit, phoneIP : String, fileSize : Int, 
 }
 
 @Composable
-fun changeList(modifier: Modifier = Modifier, isList : MutableState<Boolean>, onClickList : () -> Unit = {}, onClickGrid : () -> Unit = {}) {
+fun SwitchDisplay(modifier: Modifier = Modifier, isList : MutableState<Boolean>, onClickList : () -> Unit = {}, onClickGrid : () -> Unit = {}) {
     Row(
         modifier = Modifier
             .then(modifier)
@@ -361,19 +360,22 @@ fun changeList(modifier: Modifier = Modifier, isList : MutableState<Boolean>, on
 }
 
 @Composable
-fun ItemListPicture(thumbnail: Thumbnail,isSelected : MutableState<Boolean> = mutableStateOf(false), onClick: () -> Unit = {}) {
+fun ItemListPicture(thumbnail: Thumbnail,isSelected : Boolean = false, onClick: () -> Unit = {}) {
 
     val unbounded = FontFamily(Font(Res.font.unbounded))
-    val size = if(isSelected.value) 90.dp else 100.dp
+    val size = if(isSelected) 90.dp else 100.dp
 
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
 
     val backgroundColor = when {
-        isSelected.value -> Color(18, 18, 18, 255).lighten(0.08f).copy(alpha = 0.5f)
+        isSelected -> Color(18, 18, 18, 255).lighten(0.08f).copy(alpha = 0.5f)
         isHovered -> Color(18, 18, 18, 255).lighten(0.05f)
         else -> Color(0, 0, 0, 0)
     }
+
+    val border = if(isSelected) 2.dp else 0.dp
+    val borderColor = if(isSelected) Color(0xFF1E88E5) else Color.Transparent
 
     if(thumbnail.thumbnail != null) {
         Box(
@@ -388,6 +390,7 @@ fun ItemListPicture(thumbnail: Thumbnail,isSelected : MutableState<Boolean> = mu
                     .clickable { onClick() }
                     .clip(RoundedCornerShape(4.dp))
                     .background(backgroundColor)
+                    .border(border, borderColor, RoundedCornerShape(4.dp))
             )
         }
 

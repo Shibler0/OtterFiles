@@ -95,7 +95,10 @@ compose.desktop {
             description = "Easily transfer your file from your android phone to your PC"
 
             windows {
-                iconFile.set(project.file("src/jvmMain/resources/otterfileslogo.png"))
+                iconFile.set(project.file("src/jvmMain/resources/favicon.ico"))
+                menu = true
+                shortcut = true
+                menuGroup = "OtterFiles"
             }
         }
     }
