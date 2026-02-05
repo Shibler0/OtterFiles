@@ -5,11 +5,9 @@ import java.io.File
 
 fun getAllFiles(): List<String> {
     val fileList = mutableListOf<String>()
-
     val root = Environment.getExternalStorageDirectory()
 
     scanDirectory(root, fileList)
-
     return fileList
 }
 

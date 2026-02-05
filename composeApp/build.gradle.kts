@@ -48,6 +48,7 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
             implementation("org.jmdns:jmdns:3.6.3")
+            implementation("com.dorkbox:Notify:4.5")
         }
     }
 }
@@ -91,14 +92,16 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "OtterFiles"
             packageVersion = "1.0.0"
+            vendor = "Shibler"
 
-            description = "Easily transfer your file from your android phone to your PC"
+            description = "OtterFiles"
 
             windows {
-                iconFile.set(project.file("src/jvmMain/resources/favicon.ico"))
+                iconFile.set(project.file("src/jvmMain/resources/ellipselogo.ico"))
                 menu = true
                 shortcut = true
                 menuGroup = "OtterFiles"
+                upgradeUuid = "589ffbf3-babd-4454-a1d5-1b1f62009c0a"
             }
         }
     }

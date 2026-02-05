@@ -365,6 +365,10 @@ fun ItemListPicture(thumbnail: Thumbnail,isSelected : Boolean = false, onClick: 
     val unbounded = FontFamily(Font(Res.font.unbounded))
     val size = if(isSelected) 90.dp else 100.dp
 
+    val extension = thumbnail.path.substringAfterLast(".")
+    val isVideo = extension in listOf("mp4", "avi", "mkv", "mov", "wmv", "webm")
+
+
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
 
@@ -392,6 +396,10 @@ fun ItemListPicture(thumbnail: Thumbnail,isSelected : Boolean = false, onClick: 
                     .background(backgroundColor)
                     .border(border, borderColor, RoundedCornerShape(4.dp))
             )
+            if (isVideo) {
+                Icon(imageVector =  Icons.Default.PlayCircle, tint = Color.White, contentDescription = null)
+            }
+
         }
 
     } else {
