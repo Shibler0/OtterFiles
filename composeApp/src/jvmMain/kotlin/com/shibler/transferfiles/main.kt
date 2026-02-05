@@ -405,19 +405,26 @@ fun ItemListPicture(thumbnail: Thumbnail,isSelected : Boolean = false, onClick: 
     } else {
         Box(
             modifier = Modifier
-                .size(100.dp)
-                .background(Color.Black),
+                .size(100.dp),
             contentAlignment = Alignment.Center,
         ) {
-            Text(
-                thumbnail.path.substringAfterLast(
-                    "/"
-                ), fontSize = 12.sp, color = Color.White,
-                fontFamily = unbounded,
-                modifier = Modifier.clickable { onClick() }
-            )
+            Box(
+                modifier = Modifier
+                    .size(size)
+                    .clickable { onClick() }
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(Color.Black)
+                    .border(border, borderColor, RoundedCornerShape(4.dp)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    thumbnail.path.substringAfterLast(
+                        "/"
+                    ), fontSize = 12.sp, color = Color.White,
+                    fontFamily = unbounded,
+                )
+            }
         }
-
 
     }
 }
